@@ -21,27 +21,27 @@ nodes:
   "1.3":
     name: 函数类型（参数/返回值/重载）
     module: 类型基础
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
-    failure_type: null
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-07
+    mastery_level: 1
+    failure_type: conceptual
   "1.4":
     name: interface vs type
     module: 类型基础
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
-    failure_type: null
+    status: mastered
+    attempts: 1
+    last_tested: 2026-08-07
+    mastery_level: 1
+    failure_type: detail
   "1.5":
     name: 类型断言 & 类型声明
     module: 类型基础
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
-    failure_type: null
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-07
+    mastery_level: 1
+    failure_type: detail
   "2.1":
     name: 联合类型 & 交叉类型
     module: 进阶类型
@@ -107,3 +107,6 @@ nodes:
 |------|------|------|------|
 | 2026-08-06 | 1.1 | 通过 | attempts=3；细节错误：List 未定义+o.status 隐式 any；概念：let 拓宽导致保护失效 |
 | 2026-08-06 | 1.2 | 通过 | attempts=6；概念错误：可选字段与索引签名混淆、可选链与条件分支混淆 |
+| 2026-08-07 | 1.3 | 通过 | attempts=2；概念错误：重载签名用宽类型 string 导致坍缩，修正为字面量区分入参 |
+| 2026-08-07 | 1.4 | 通过 | attempts=1；细节错误：interface/type 共享命名空间，同名 PermissionUser 报 Duplicate identifier，改为 PermissionUser2 |
+| 2026-08-07 | 1.5 | 通过 | attempts=2；细节错误：断言目标选 Element 应为 HTMLInputElement、.d.ts 默认导出对象语法多次修正 |
