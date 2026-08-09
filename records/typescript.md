@@ -45,27 +45,27 @@ nodes:
   "2.1":
     name: 联合类型 & 交叉类型
     module: 进阶类型
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
-    failure_type: null
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-08
+    mastery_level: 1
+    failure_type: close
   "2.2":
     name: 类型守卫 & 类型收窄
     module: 进阶类型
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 1
+    last_tested: 2026-08-08
+    mastery_level: 1
     failure_type: null
   "2.3":
     name: 映射类型 & 索引签名
     module: 进阶类型
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
-    failure_type: null
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-08
+    mastery_level: 1
+    failure_type: close
   "3.1":
     name: 泛型基础（函数/接口/类）
     module: 泛型与类型体操
@@ -110,3 +110,6 @@ nodes:
 | 2026-08-07 | 1.3 | 通过 | attempts=2；概念错误：重载签名用宽类型 string 导致坍缩，修正为字面量区分入参 |
 | 2026-08-07 | 1.4 | 通过 | attempts=1；细节错误：interface/type 共享命名空间，同名 PermissionUser 报 Duplicate identifier，改为 PermissionUser2 |
 | 2026-08-07 | 1.5 | 通过 | attempts=2；细节错误：断言目标选 Element 应为 HTMLInputElement、.d.ts 默认导出对象语法多次修正 |
+| 2026-08-08 | 2.1 | 通过 | attempts=2；接近正确：任务3漏答"能填什么值"，微调时误写"不会报错"后自行纠正为"都会报错"（never 不接受任何值）|
+| 2026-08-08 | 2.2 | 通过 | attempts=1；一次通过。点拨：if(r.ok) 真值收窄对布尔判别符等价于 ===，但字符串/数字字面量判别符须用 ===/switch；Failure 加 data 后 in 失效、else 收窄 never |
+| 2026-08-08 | 2.3 | 通过 | attempts=2；接近正确：任务1漏写修复方式（微调后给 string|number）、任务3初答把 a 的值说成 string（微调纠正为 number）。模块2完成 |
