@@ -7,24 +7,24 @@ nodes:
     module: 类型基础
     status: mastered
     attempts: 3
-    last_tested: 2026-08-06
-    mastery_level: 1
+    last_tested: 2026-08-10
+    mastery_level: 2
     failure_type: detail
   "1.2":
     name: 数组、元组 & 对象类型
     module: 类型基础
     status: mastered
     attempts: 6
-    last_tested: 2026-08-06
-    mastery_level: 1
+    last_tested: 2026-08-10
+    mastery_level: 2
     failure_type: conceptual
   "1.3":
     name: 函数类型（参数/返回值/重载）
     module: 类型基础
     status: mastered
     attempts: 2
-    last_tested: 2026-08-07
-    mastery_level: 1
+    last_tested: 2026-08-10
+    mastery_level: 2
     failure_type: conceptual
   "1.4":
     name: interface vs type
@@ -69,34 +69,34 @@ nodes:
   "3.1":
     name: 泛型基础（函数/接口/类）
     module: 泛型与类型体操
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
-    failure_type: null
+    status: mastered
+    attempts: 1
+    last_tested: 2026-08-10
+    mastery_level: 1
+    failure_type: close
   "3.2":
     name: 泛型约束（extends）
     module: 泛型与类型体操
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
-    failure_type: null
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-10
+    mastery_level: 1
+    failure_type: conceptual
   "3.3":
     name: 条件类型 & infer
     module: 泛型与类型体操
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
-    failure_type: null
+    status: mastered
+    attempts: 1
+    last_tested: 2026-08-10
+    mastery_level: 1
+    failure_type: close
   "3.4":
     name: 内置工具类型实战
     module: 泛型与类型体操
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 1
+    last_tested: 2026-08-10
+    mastery_level: 1
     failure_type: null
 ---
 
@@ -113,3 +113,10 @@ nodes:
 | 2026-08-08 | 2.1 | 通过 | attempts=2；接近正确：任务3漏答"能填什么值"，微调时误写"不会报错"后自行纠正为"都会报错"（never 不接受任何值）|
 | 2026-08-08 | 2.2 | 通过 | attempts=1；一次通过。点拨：if(r.ok) 真值收窄对布尔判别符等价于 ===，但字符串/数字字面量判别符须用 ===/switch；Failure 加 data 后 in 失效、else 收窄 never |
 | 2026-08-08 | 2.3 | 通过 | attempts=2；接近正确：任务1漏写修复方式（微调后给 string|number）、任务3初答把 a 的值说成 string（微调纠正为 number）。模块2完成 |
+| 2026-08-10 | 1.1 | 复习通过 | Lv1->2；core保留，细节纠正：const 阻止全部重赋值，正确写法 `let s:'open'\|'shipped'='open'` |
+| 2026-08-10 | 1.2 | 复习通过 | Lv1->2；fix正确，概念纠正：索引签名不"覆盖"name(兼容共存)，真正问题是禁止可选字段(undefined不兼容) |
+| 2026-08-10 | 1.3 | 复习通过 | Lv1->2；重载坍缩原因答对，改法正确(number区分+实现签名联合) |
+| 2026-08-10 | 3.1 | 通过 | attempts=1；接近正确：对象字面量误用`;`分隔(应为`,`)，泛型逻辑完全正确；③解释可更精确(T锁定后arr元素类型与data同类型) |
+| 2026-08-10 | 3.2 | 通过 | attempts=2；①②代码完美(keyof约束+T[K]返回+&{id}约束)；③概念纠正：相比无约束<T>，extends新增「能用成员」而非「保留具体类型」(后者两者都有) |
+| 2026-08-10 | 3.3 | 通过 | attempts=1；①Unwrap正确②A=number[]/B=string正确③分布性推导对(string[]|number[])但误坍缩成[]；联合点属2.1,明日复习重测 |
+| 2026-08-10 | 3.4 | 通过 | attempts=1零错误；Pick/Omit正确；Partial草稿态解释正确；MyParameters实现正确(infer P提取参数元组[number,string])。模块3+TS主题全部完成 |
