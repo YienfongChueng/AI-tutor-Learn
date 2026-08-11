@@ -31,24 +31,24 @@ nodes:
     module: 类型基础
     status: mastered
     attempts: 1
-    last_tested: 2026-08-07
-    mastery_level: 1
+    last_tested: 2026-08-11
+    mastery_level: 2
     failure_type: detail
   "1.5":
     name: 类型断言 & 类型声明
     module: 类型基础
     status: mastered
     attempts: 2
-    last_tested: 2026-08-07
-    mastery_level: 1
+    last_tested: 2026-08-11
+    mastery_level: 2
     failure_type: detail
   "2.1":
     name: 联合类型 & 交叉类型
     module: 进阶类型
     status: mastered
     attempts: 2
-    last_tested: 2026-08-08
-    mastery_level: 1
+    last_tested: 2026-08-11
+    mastery_level: 2
     failure_type: close
   "2.2":
     name: 类型守卫 & 类型收窄
@@ -120,3 +120,6 @@ nodes:
 | 2026-08-10 | 3.2 | 通过 | attempts=2；①②代码完美(keyof约束+T[K]返回+&{id}约束)；③概念纠正：相比无约束<T>，extends新增「能用成员」而非「保留具体类型」(后者两者都有) |
 | 2026-08-10 | 3.3 | 通过 | attempts=1；①Unwrap正确②A=number[]/B=string正确③分布性推导对(string[]|number[])但误坍缩成[]；联合点属2.1,明日复习重测 |
 | 2026-08-10 | 3.4 | 通过 | attempts=1零错误；Pick/Omit正确；Partial草稿态解释正确；MyParameters实现正确(infer P提取参数元组[number,string])。模块3+TS主题全部完成 |
+| 2026-08-11 | 1.4 | 复习通过 | Lv1->2；声明合并对称点确认(interface同名合并/type同名或混用报Duplicate) |
+| 2026-08-11 | 1.5 | 复习通过 | Lv1->2；as断言+HTMLInputElement目标正确；尖括号断言tsx限制答错(补:与JSX标签歧义,故tsx只能用as) |
+| 2026-08-11 | 2.1 | 复习通过 | Lv1->2；string&number=never不接任何值/联合取并集，上次漏答"能填什么值"本次答对 |
