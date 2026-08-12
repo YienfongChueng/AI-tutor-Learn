@@ -653,6 +653,491 @@ ref(1)
 > 现在我们知道了：原始值不能 Proxy，所以 ref 用 `RefImpl` 对象包一层，靠 `.value` 访问器实现 track/trigger，对象值则通过 `toReactive` 复用 reactive。但这里埋了一个问题：`toReactive` 把对象包成 reactive 后，**子对象是何时被代理的？是 `reactive()` 调用时就全量递归，还是访问时才递归？** 这关系到 1.2 留下的"惰性递归"承诺。这是 1.5 要处理的事。
 
 
+### 子节 1.5：深层响应式：惰性递归代理
+
+**core_question：子对象何时被代理，惰性代理的性能好处**
+
+---
+
+#### 第 0 段：直觉锚定
+
+回到 1.2 的「响应式化工厂」。工厂给主楼包门禁时，**只包了大楼入口一层**。但楼里有楼层，楼层里有房间，房间里有抽屉。
+
+- **Vue2 的做法**：建楼时一次性把所有楼层、房间、抽屉**全装上门禁**（递归遍历每一层）。楼再大也得一口气装完。
+- **Vue3 的做法**：只装大楼入口门禁。当你**推开某层楼的门**（访问子对象）时，才给那层楼装门禁；再推开某房间门时，才给房间装。**用到才装，没推开的永远不装。**
+
+「主楼入口门禁」= `reactive(obj)` 只包一层外壳；「推门时才装」= get trap 里对返回的子对象调 `reactive(res)`。
+
+> **回调 1.3**：1.3 讲 `createGetter` 时，第 6 步那行 `if (isObject(res)) return reactive(res)` 就是"推门时装门禁"的动作--它正是惰性递归的入口。
+
+---
+
+#### 第 1 段：问题背景
+
+1.2 讲过 `createReactiveObject` **只包一层、不递归**。1.4 讲 ref 包对象时 `toReactive` 也只包一层。但用户的对象往往是嵌套的：
+
+```ts
+const state = reactive({ user: { profile: { age: 20 } }, list: [...] })
+state.user.profile.age = 21   // 这行能不能触发更新？
+```
+
+要能触发，`state.user`、`state.user.profile` 都必须是响应式代理。但 `reactive(state)` 只包了最外层。子对象何时变响应式？
+
+> ⚠️ **常见先入为主的误解：** 很多人以为"`reactive(obj)` 会递归把所有子对象都代理"。实际上它**只包一层外壳**，子对象是**访问时**才被代理的（get trap 里 `reactive(res)`）。这也解释了 Vue2 与 Vue3 在初始化性能上的根本差异。
+
+---
+
+#### 第 2 段：核心数据结构
+
+惰性递归复用两个已有结构，没有新增：
+
+- **`reactiveMap`（WeakMap 缓存）**：1.2 讲过，`原始对象 -> 代理`。保证同一子对象**不重复代理**。
+- **`__v_raw` 标记**：代理的 get trap 拦截 `ReactiveFlags.RAW` 返回 `target`（取原始对象，用于去代理比较）。
+
+代理本身**不存储"子代理"引用**--子代理是访问时即时创建（或命中缓存）的。数据流实例：
+
+```
+原始对象 o = { a: { b: { c: 1 } } }
+
+reactive(o) ──────────────────────> proxy_o   （只包一层！a/b/c 都还没动）
+
+访问 proxy_o.a:
+  get trap ─> res = o.a = {b:{c:1}}
+           ─> isObject(res) ─> reactive(res) ─> proxy_a  （此刻才包，缓存进 reactiveMap）
+
+访问 proxy_o.a.b:
+  proxy_a 的 get trap ─> res = o.a.b = {c:1}
+                      ─> reactive(res) ─> proxy_b
+
+访问 proxy_o.a.b.c:
+  proxy_b 的 get trap ─> res = 1
+                      ─> isObject(1)? no ─> 直接返回 1   （原始值，不再递归）
+```
+
+关键：每一层代理都是**访问到才创建**，且通过 `reactiveMap` 保证 `proxy_o.a === proxy_o.a`（同一引用）。
+
+---
+
+#### 第 3 段：运行流程
+
+源码定位：`vue@3.4 · packages/reactivity/src/baseHandlers.ts · createGetter` 第 6 步（1.3 已展开，这里聚焦惰性递归那一行）。
+
+```ts
+// createGetter 内（保留与惰性递归相关的控制流）
+function get(target, key, receiver) {
+  // ... 特殊 flag、数组方法（略）
+  const res = Reflect.get(target, key, receiver)
+  if (!isReadonly) track(target, TrackOpTypes.GET, key)
+  if (shallow) return res                          // shallow 模式不递归（1.6）
+  if (isRef(res)) return /* ... */ res.value        // ref 解包（1.3）
+  if (isObject(res)) return isReadonly ? readonly(res) : reactive(res)  // ← 惰性递归入口
+  return res                                        // 原始值直接返回
+}
+```
+
+惰性递归流程图：
+
+```
+读 proxy.key
+  ├─ Reflect.get(target, key, receiver) 取 res
+  ├─ track(target, GET, key)              ← 收集依赖
+  ├─ res 是 ref? ──yes──> 解包返回 res.value
+  ├─ res 是对象? 
+  │    yes ─> reactive(res)               ← 惰性：此刻才递归包一层
+  │            ├─ reactiveMap 命中? ─yes─> 返回已有子代理（不重复包）
+  │            └─ 未命中? ────────────> new Proxy(res, baseHandlers)，缓存，返回
+  │    no  ─> 直接返回 res（原始值）
+```
+
+**为什么不会重复代理、且数据一致**：
+
+- 每次访问 `proxy.a` 都会走 get trap -> `reactive(o.a)` -> `reactiveMap` 命中 -> 返回**同一个** `proxy_a`。
+- 所以 `proxy.a === proxy.a`（同引用），对 `proxy.a` 的修改走 `proxy_a` 的 set trap -> `trigger`，依赖正常触发。
+- 子代理与原始子对象**共享数据**（1.2 讲过 reactive 不拷贝），改 `proxy.a.x` 就是改 `o.a.x`。
+
+---
+
+#### 第 4 段：设计动机与权衡
+
+- **惰性递归 vs Vue2 全量递归**：
+
+| 维度 | Vue2 `observe()` | Vue3 `reactive()` |
+| ---- | ----------------- | ----------------- |
+| 时机 | 初始化时全量递归 | 访问时按需递归 |
+| 初始化开销 | O(n)（n = 所有层级属性总数） | O(1)（只包一层） |
+| 首次访问子对象 | 无额外开销 | 一次 `reactive()`（查缓存 + 可能 new Proxy） |
+| 未使用的深层 | 仍被代理（浪费） | 永不代理（省 CPU/内存） |
+
+- **性能好处**：
+  - 大对象但只用到部分字段 -> 未用部分**永不代理**，省 CPU 和内存。
+  - 初始化快：首屏渲染前 `reactive` 一个大数据结构不卡顿。
+  - 总开销**摊到访问时**，用得多才付得多，公平。
+- **`reactiveMap` 缓存保证不重复**：同一子对象多次访问只代理一次，惰性不会退化成"每次访问都 new Proxy"。
+- **代价**：
+  - 首次访问子对象有一次 `reactive()` 调用开销（查缓存 + 可能 `new Proxy`）。
+  - 深层嵌套访问链路每次都过 get trap（微开销，但 V8 对 Proxy 有优化）。
+- **与 ref 的衔接**：1.4 讲的 `toReactive` 走同一个 `reactive()`，所以 `ref` 包对象时，深层访问**同样惰性递归**--ref 与 reactive 在深层响应式上行为一致。
+
+---
+
+#### 第 5 段：次级误解和边界
+
+1. **误解：「`reactive(obj)` 会一次性把所有子对象代理」** -> 错。只包一层外壳，子对象**访问时**才代理。
+2. **误解：「每次访问子对象都 new 一个新 Proxy」** -> 错。`reactiveMap` 缓存，同一子对象返回同一个代理（`proxy.a === proxy.a`）。
+3. **误解：「深层属性修改不会触发更新」** -> 错。访问时子对象已被代理成 `proxy_a`，修改 `proxy_a.x` 走它的 set trap，照样 `trigger`。
+4. **边界·解构失去响应式的真正根因**（这是 Vue3 最经典的坑，用惰性递归能彻底解释）：
+
+   ```ts
+   const state = reactive({ user: { age: 20 }, count: 0 })
+
+   // 情况 A：解构对象属性
+   const { user } = state      // 触发 get trap -> user = reactive(o.user) = 子代理 ✅ 仍响应式
+   user.age = 21               // 走子代理 set trap，触发更新 ✅
+
+   // 情况 B：解构原始值属性
+   const { count } = state     // 触发 get trap -> res = 0 -> isObject(0)? no -> 直接返回 0
+   count = 1                   // count 就是个普通数字，没有代理，不触发更新 ❌ 失去响应式
+   ```
+
+   **根因**：原始值没有"对象外壳"可被代理（1.1/1.4），get trap 直接返回原值；解构出来的是值拷贝，与响应式系统脱钩。对象属性解构后仍是子代理，所以不失响应式。这就是为什么 Vue3 要用 `toRefs` 把原始值属性转成 `ref` 再解构。
+
+5. **其他边界**：
+   - `shallowReactive`：只包一层，子对象访问**不递归**代理（1.6 详讲）。
+   - 新增对象属性 `proxy.newKey = {x:1}` -> set trap -> `trigger(ADD)`；之后访问 `proxy.newKey` -> get trap -> `reactive({x:1})` 惰性代理。新增的对象属性也会在访问时变响应式。
+   - `toRaw(proxy)` 沿 `__v_raw` 一层层取回最原始对象（穿透所有代理层）。
+
+---
+
+**子节交接**：
+
+> 现在我们知道了：reactive 默认**深层响应式**，但靠"访问时才递归代理"实现惰性--初始化只包一层，子对象用到才代理，`reactiveMap` 保证不重复。这也解释了"解构原始值失响应式、对象不失"的根因。但有时我们**不需要深层**：只想关心第一层变化（性能），或只想只读不可改（安全）。这就需要 `readonly` / `shallow` 变体--它们的 handler 和默认 `mutableHandlers` 有什么差异？这是 1.6 要处理的事。
+
+
+### 子节 1.6：readonly / shallow 变体
+
+**core_question：不同响应式变体的 handler 差异**
+
+---
+
+#### 第 0 段：直觉锚定
+
+回到 1.2 的响应式化工厂。工厂其实有四条流水线，对应四种"门禁权限套餐"：
+
+- **普通门禁（reactive）**：能进能出能改，整栋楼逐层装到底（深层 + 可改）。
+- **只读门禁（readonly）**：只能看不能改，也是逐层装到底（深层 + 只读）。
+- **浅门禁（shallowReactive）**：只给大门这层装门禁，里面的楼层房间是"毛坯"（原始对象，没装门禁）。
+- **浅只读门禁（shallowReadonly）**：大门这层只能看，里面也是毛坯。
+
+「门禁权限套餐」= 四种 handler，由 `isReadonly` × `isShallow` 两个布尔参数组合生成（1.3 讲过 `createGetter(isReadonly, shallow)` / `createSetter(shallow)` 的工厂签名，这里看参数怎么组合出四变体）。
+
+---
+
+#### 第 1 段：问题背景
+
+默认 `reactive` 是"深层 + 可改"。但实际场景需要另三种：
+
+- **只读不可改**：父组件传给子组件的 `props` 不应被子组件修改 -> `readonly`。
+- **只关心第一层**：大对象深层不需要响应式，省代理开销 -> `shallowReactive`。
+- **第一层只读**：组件 `props` 实际就是 `shallowReadonly`（props 通常整体替换，不深改）。
+
+> ⚠️ **常见先入为主的误解：** 很多人以为 `readonly` 是"深拷贝一份只读副本"。实际上 `readonly` 只包一层**只读外壳**，与原对象**共享数据**（和 reactive 一样不拷贝）。改原对象，`readonly` 视图也会变（如果是 `readonly(reactive(o))`）。
+
+---
+
+#### 第 2 段：核心数据结构
+
+四种 handler（vue@3.4 · `packages/reactivity/src/baseHandlers.ts`），都由 `createGetter/createSetter` 的两个参数生成：
+
+```ts
+// 1. reactive：深层 + 可改
+export const mutableHandlers = {
+  get: createGetter(false /*isReadonly*/, false /*isShallow*/),
+  set: createSetter(false),
+  deleteProperty, has, ownKeys,
+}
+
+// 2. readonly：深层 + 只读
+export const readonlyHandlers = {
+  get: createGetter(true, false),
+  set(target, key) {
+    if (__DEV__) warn(`Set key "${key}" failed: target is readonly.`)
+    return true                 // 不赋值，返回 true 不抛错
+  },
+  deleteProperty(target, key) { if (__DEV__) warn(...); return true },
+  has, ownKeys,
+}
+
+// 3. shallowReactive：浅层 + 可改
+export const shallowReactiveHandlers = {
+  get: createGetter(false, true /*isShallow*/),
+  set: createSetter(true),
+  deleteProperty, has, ownKeys,
+}
+
+// 4. shallowReadonly：浅层 + 只读
+export const shallowReadonlyHandlers = {
+  get: createGetter(true, true),
+  set(target, key) { /* warn */ return true },
+  deleteProperty(target, key) { /* warn */ return true },
+  has, ownKeys,
+}
+```
+
+四个独立缓存（`packages/reactivity/src/reactive.ts`），互不影响：
+
+```ts
+const reactiveMap        = new WeakMap()   // reactive
+const shallowReactiveMap = new WeakMap()   // shallowReactive
+const readonlyMap        = new WeakMap()   // readonly
+const shallowReadonlyMap = new WeakMap()   // shallowReadonly
+```
+
+四变体矩阵：
+
+```
+                 isShallow=false          isShallow=true
+isReadonly=false  reactive                 shallowReactive
+                  (深层可改)                (浅层可改)
+isReadonly=true   readonly                 shallowReadonly
+                  (深层只读)                (浅层只读)
+```
+
+---
+
+#### 第 3 段：运行流程
+
+差异全部落在 `createGetter` 的三个分支（按 `isReadonly`/`isShallow` 走不同路径）：
+
+```ts
+function get(target, key, receiver) {
+  if (key === ReactiveFlags.IS_REACTIVE) return !isReadonly
+  if (key === ReactiveFlags.IS_READONLY) return isReadonly
+  // ...
+  const res = Reflect.get(target, key, receiver)
+  if (!isReadonly) track(target, GET, key)   // ① readonly 不 track
+  if (shallow) return res                     // ② shallow 直接返回，不递归、不解包
+  if (isRef(res)) return /* ... */ res.value
+  if (isObject(res)) return isReadonly ? readonly(res) : reactive(res)  // ③ 深层递归：同种变体向下传
+  return res
+}
+```
+
+三个差异点：
+
+- **① `readonly` 不 track**：只读对象不会被改 -> 无需收集依赖来触发更新。但 `readonly(reactive(o))` 的依赖收集由**底层 reactive** 负责（见下方）。
+- **② `shallow` 直接返回 `res`**：不递归 `reactive`、不解包 `ref`。所以 `shallowReactive` 只有第一层响应式，深层是原始对象。
+- **③ 深层递归保持同种变体**：`readonly` 的子对象包 `readonly`，`reactive` 的子对象包 `reactive`（变体向下传递）。
+
+set 差异：
+
+- `readonly` 的 set：`warn + return true`（不赋值、不 `trigger`）。
+- `shallow` 的 set：`createSetter(true)`，不 `toRaw` 比较（直接用新值）。
+
+四变体行为对比表：
+
+```
+变体              track?  惰性递归?      ref解包?  set 行为
+─────────────────────────────────────────────────────────────
+reactive          ✅      ✅ (reactive)  ✅        Reflect.set + trigger
+readonly          ❌      ✅ (readonly)  ✅        warn 不赋值
+shallowReactive   ✅      ❌             ❌        Reflect.set + trigger（仅第一层）
+shallowReadonly   ❌      ❌             ❌        warn 不赋值
+```
+
+**关键机制：为什么 `readonly` 不 track，但 `readonly(reactive(o))` 视图能更新？**
+
+```
+readonly(reactive(o))   访问 proxy_ro.key
+  └─ readonly 的 get: isReadonly=true -> 不 track
+       └─ Reflect.get(reactiveProxy, key)
+            └─ reactive 的 get: isReadonly=false -> track ✅  依赖收集在这层！
+```
+
+依赖收集发生在**底层 reactive**，`readonly` 只是套了个只读外壳。而纯 `readonly(plainObj)` 无底层 reactive -> 不 track -> 永不更新（合理：它本就不可变）。
+
+---
+
+#### 第 4 段：设计动机与权衡
+
+- **`readonly` 的意义**：保护数据不被改（props、配置常量）。自身不 track 是因为"只读不会变，无需收集"；配合 `reactive` 可作"响应式数据的只读视图"。
+- **`shallow` 的意义**：性能优化。大对象深层不需要响应式时，`shallowReactive` 只代理第一层，深层是原始对象（访问快、不占代理内存）。组件 `props` 用 `shallowReadonly`（props 通常整体替换，不深改）。
+- **工厂函数复用**：四种 handler 都由 `createGetter/createSetter` 的两个参数生成 -> **参数化差异**，避免四份重复代码。这是把"可变的维度"（readonly? shallow?）抽成参数的典型设计。
+- **独立缓存 Map**：`reactiveMap` / `readonlyMap` 等分开，保证 `reactive(o)` 和 `readonly(o)` 是**不同代理**互不影响；同一变体重复调用仍命中各自缓存。
+- **代价**：`readonly` 不能改（开发模式 warn，生产模式静默 `return true`）；`shallow` 深层不响应式（需手动深层 `reactive` 或用 `ref`）。
+
+---
+
+#### 第 5 段：次级误解和边界
+
+1. **误解：「`readonly` 是深拷贝只读副本」** -> 错。只包一层只读外壳，与原对象共享数据。
+2. **误解：「`readonly` 完全不收集依赖」** -> 部分对。`readonly` 自身不 track，但 `readonly(reactive(o))` 的依赖收集由底层 reactive 负责，视图能更新。
+3. **误解：「`shallowReactive` 的深层修改能触发更新」** -> 错。深层是原始对象（`shallow` 直接返回 `res` 不递归），改 `proxy.deep.x` 走的是原始对象的 set，**不 trigger**。
+4. **误解：「`reactive(o)` 和 `readonly(o)` 是同一个代理」** -> 错。两个独立 WeakMap 缓存，是不同的代理对象。
+5. **边界**：
+   - **组件 `props` 实际是 `shallowReadonly`**：第一层只读（开发模式改 props 会 warn），深层仍是原始对象引用。
+   - **`markRaw(obj)`**：给对象打 `__v_skip` 标记，`reactive` 时 `getTargetType` 返回 `INVALID`，**永不代理**（逃生舱，用于某些不想被响应式的对象，如第三方实例）。
+   - **`readonly(reactive(o))` vs `reactive(readonly(o))`**：前者是"响应式数据的只读视图"（可感知底层变化，常用）；后者无意义（`readonly(o)` 已是代理，再 `reactive` 会短路返回本身）。
+   - **四种变体都共享同一套 track/trigger 机制**（主题块 2 详讲），差异只在 handler 的拦截行为。
+
+---
+
+**子节交接（主题块 1 收尾）**：
+
+> 现在我们知道了四种响应式变体（`reactive` / `readonly` / `shallowReactive` / `shallowReadonly`）的 handler 差异，由 `isReadonly` × `isShallow` 两个参数组合生成。回顾整个主题块 1：1.1 讲为什么用 Proxy，1.2 讲 `reactive()` 创建流程，1.3 讲 baseHandlers 的 get/set，1.4 讲 ref 如何处理原始值，1.5 讲惰性递归，1.6 讲变体。但这六节都在讲"**数据层**"--如何把对象变成代理、get/set/变体如何拦截。而 handler 里反复调用的 `track` / `trigger` 的内部--依赖到底存在哪？`trigger` 如何找到该通知哪些 effect？这是主题块 2「依赖收集与触发」要回答的核心。
+
+
+---
+
+### 补充串讲：响应式数据源码追踪调用链（1.2 + 1.3 + 1.5 串联）
+
+> 本段为考核题 1 未通过后的补充讲解。用一条完整调用链把「创建 -> 读 -> 写」三阶段串起来，对照源码分支逐行走。
+
+场景：
+
+```ts
+const state = reactive({ user: { age: 20 } })
+state.user.age        // 读
+state.user.age = 21   // 写
+```
+
+#### 阶段 A：`reactive(state)` 创建（1.2）
+
+```
+reactive({user:{age:20}})
+  └─ createReactiveObject(target, false, baseHandlers, collectionHandlers, reactiveMap)
+       ├─ ① isObject(target)? ─────── yes({}是对象) ──> 继续
+       ├─ ② target[IS_REACTIVE]? ──── no(普通对象)  ──> 继续
+       ├─ ③ reactiveMap.get(target)? ─ no(首次)     ──> 继续
+       ├─ ④ getTargetType(target)? ── COMMON(非INVALID) ──> 继续
+       └─ ⑤ new Proxy(target, baseHandlers) ─> reactiveMap.set ─> 返回 proxy
+```
+
+**三个易错点**：
+
+1. **没有 isRef 判断**。isRef 属于 `ref.ts`，不在 `createReactiveObject` 流程里。
+2. **返回的是 `proxy`（state 的代理）**，不是 `proxy.user`。`proxy.user` 要等访问时才产生。
+3. **`user` 此刻没被代理**。reactiveMap 里只有 `{ state原始对象 -> proxy }` 一项。子对象访问时才惰性代理（1.5）。
+
+#### 阶段 B：读取 `state.user.age`（1.3 + 1.5）
+
+`state.user.age` 是**两次属性访问**，每次都触发一次 get trap：
+
+```
+state.user           ← 第 1 次 get trap
+  └─ get(target=state原始, key='user', receiver=proxy)
+       ├─ Reflect.get(state, 'user', proxy) ─> res = {age:20}
+       ├─ track(state, GET, 'user')              ← track ①
+       ├─ shallow? no
+       ├─ isRef(res)? no
+       └─ isObject(res)? yes ─> reactive(res)    ← 惰性递归入口！(1.5)
+            └─ createReactiveObject(user...)
+                 └─ ③缓存未命中 ─> ⑤new Proxy(user) ─> proxy_user
+       └─ 返回 proxy_user
+
+proxy_user.age       ← 第 2 次 get trap
+  └─ get(target=user原始, key='age', receiver=proxy_user)
+       ├─ Reflect.get(user, 'age', proxy_user) ─> res = 20
+       ├─ track(user, GET, 'age')               ← track ②
+       └─ isObject(20)? no ─> 返回 20
+```
+
+**关键**：
+
+- **2 次 get trap、2 次 track**。两次 track 对应不同 `(target, key)`：`(state,'user')` 和 `(user,'age')`。
+- `user` 在第 1 次 get trap 的 `isObject(res) -> reactive(res)` 处被代理（惰性递归入口，1.5）。不是创建时代理的。
+
+#### 阶段 C：修改 `state.user.age = 21`（1.3）
+
+```
+state.user           ← 先走 get（同阶段B第1次）─> 拿到 proxy_user
+proxy_user.age = 21  ← set trap
+  └─ set(target=user原始, key='age', value=21, receiver=proxy_user)
+       ├─ oldValue = user['age'] = 20，toRaw(20)=20
+       ├─ hadKey = hasOwn(user, 'age') = true
+       ├─ Reflect.set(user, 'age', 21, proxy_user)   ← 真正写入 user.age=21
+       ├─ target === toRaw(receiver)?
+       │    user === toRaw(proxy_user)=user ─> yes ✅
+       └─ hadKey && hasChanged(21,20) ─> trigger(user, SET, 'age', 21, 20)
+```
+
+**`target === toRaw(receiver)` 防的是什么？**
+
+防**原型链 set 重复触发**。场景：若 `user` 继承自另一个 reactive 对象 `proto`：
+
+```
+proxy_user.age = 21
+  ├─ user 上没有 age ─> 沿原型链到 proto 的 setter
+  │    └─ proto 的 set trap 被调用（receiver 仍是 proxy_user，但 target=proto）
+  │         └─ target === toRaw(receiver)?  proto === user? ─> no ─> 不 trigger
+  └─ user 上有 age ─> user 的 set trap
+       └─ target === toRaw(receiver)?  user === user? ─> yes ─> trigger
+```
+
+所以此判断确保**只在"真正属主"（属性实际写在哪层）上 trigger 一次**，避免原型链场景下 proto 和 user 各触发一次（重复更新）。
+
+**它不是**"防不需要代理的对象"--那是创建阶段 ①`isObject` / ④`getTargetType===INVALID` 的事，发生在 `new Proxy` 之前，跟 set trap 无关。
+
+#### 三阶段串联记忆图
+
+```
+创建(1.2):  reactive(o) ─createReactiveObject─> 只包一层 proxy（子对象未代理）
+读(1.3+1.5): proxy.key ─get trap─> track + isObject?reactive(res):res（惰性递归）
+写(1.3):    proxy.key=v ─set trap─> Reflect.set + (target===toRaw(receiver)?) trigger
+```
+
+
 ## 考核过程
 
-（主题块 1 全部讲完后统一考核，此处待填充）
+ 题目 1：源码追踪题（必须）
+
+  const state = reactive({ user: { age: 20 } })
+
+  state.user.age        // 第 1 行：读取
+  state.user.age = 21   // 第 2 行：修改
+
+  追踪三件事的调用链（列出经过的函数节点 + 顺序）：
+
+  1. reactive(state) 执行时，createReactiveObject 依次走了哪些判断分支？最终返回什么？此时子对象 user 被代理了吗？
+   - 是否isReactiive、是否isReadonly、是否isRef、是否ifObject判断；最终返回 proxy.user,子对象user被代理了
+  2. 读取 state.user.age 时：触发了几次 get trap？几次 track？user 是在哪个环节被代理的？（惰性递归入口是哪行）
+   - 1次，1次；在isObject(user)? reactive(user):user
+  3. 修改 state.user.age = 21 时：set trap 的执行流程？trigger 如何被调用？代码里 target === toRaw(receiver)
+  这个判断在这里防的是什么问题？
+  - 防不需要代理的对象，直接返回原是对象
+
+  ---
+  📌 题目 2：机制推理题（必须）
+
+  const a = ref({ x: 1 })
+  const b = shallowReactive({ x: 1, deep: { y: 1 } })
+  const c = readonly(reactive({ x: 1 }))
+
+  假设各自有一个 effect 读取了对应属性。推理并说明为什么：
+
+  1. a.value.x = 2 能否触发「读取了 a.value.x 的 effect」？为什么？（提示：toReactive）
+    - 触发，因为ref是对象类型，会toReactive包一层
+  2. b.x = 2 和 b.deep.y = 2，哪个能触发更新、哪个不能？为什么？
+    - b.x能触发，d.deep.y不能触发更新，因为shallowReactive只代理第一层对象，深层对象不代理，直接返回原是值
+  3. c.x = 2 会发生什么？若通过 reactive 代理改底层值（reactiveProxy.x = 3），c 的视图会更新吗？为什么 readonly 自己不 track却还能更新？
+    - 在开发模式，会warn提示；会更新，因为readonly只在外层包装，里层的走toReactive({x:1})
+
+  ---
+  📌 题目 3：设计理解题（必须）
+
+  1. ref 为什么用独立的 RefImpl 类，而不直接用 reactive({ value: x })？说出核心权衡（至少 2 点）。
+   - 因为proxy只能代理对象，基本类型不能代理；
+   - 需要区分引用类型还是基本类型，如果直接用 reactive({ value: x })，区分不了
+  2. reactiveMap 为什么用 WeakMap 而不是普通 Map？如果用普通 Map 会有什么具体问题？
+   - WeakMap 的key是原始对象，能够在不引用的时候进行CG
+   - this指向问题，WeakMap的this只想原始对象，这样能保证代理对象和原始对象是同一个引用，改代理对象的值就是改原始对象的值
+
+1.1 是否isReactiive、是否isReadonly、是否isRef、是否ifObject判断；最终返回 proxy.user,子对象user被代理了
+1.2 1次，1次；在isObject(user)? reactive(user):user
+1.3 防不需要代理的对象，直接返回原是对象
+2.1 触发，因为ref是对象类型，会toReactive包一层
+2.2 b.x能触发，d.deep.y不能触发更新，因为shallowReactive只代理第一层对象，深层对象不代理，直接返回原是值
+2.3 在开发模式，会warn提示；会更新，因为readonly只在外层包装，里层的走toReactive({x:1})
+3.1  - 因为proxy只能代理对象，基本类型不能代理；
+     - 需要区分引用类型还是基本类型，如果直接用 reactive({ value: x })，区分不了
+3.2  - WeakMap 的key是原始对象，能够在不引用的时候进行CG
+     - this指向问题，WeakMap的this只想原始对象，这样能保证代理对象和原始对象是同一个引用，改代理对象的值就是改原始对象的值
