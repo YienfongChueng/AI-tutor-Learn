@@ -1098,12 +1098,24 @@ proxy_user.age = 21
   追踪三件事的调用链（列出经过的函数节点 + 顺序）：
 
   1. reactive(state) 执行时，createReactiveObject 依次走了哪些判断分支？最终返回什么？此时子对象 user 被代理了吗？
-   - 是否isReactiive、是否isReadonly、是否isRef、是否ifObject判断；最终返回 proxy.user,子对象user被代理了
+   - isObject(target),target[IS_REACTIVE],reactiveMap.get(target),getTargetType(target),new Proxy(target,baseHandlers)
+   - user没有被代理，reactiveMap 里只有 `{ state原始对象 -> proxy }` 一项。子对象访问时才惰性代理
+  
   2. 读取 state.user.age 时：触发了几次 get trap？几次 track？user 是在哪个环节被代理的？（惰性递归入口是哪行）
-   - 1次，1次；在isObject(user)? reactive(user):user
+   - 2次属性访问，每次都触发一次get trap；
+   - user 在第一次get trap的isObject(res)-> reactive(res)处被代理
+  
   3. 修改 state.user.age = 21 时：set trap 的执行流程？trigger 如何被调用？代码里 target === toRaw(receiver)
   这个判断在这里防的是什么问题？
-  - 防不需要代理的对象，直接返回原是对象
+  - oldValue = user['age'] = 20，toRaw(20)=20
+  - hadKey = hasOwn(user, 'age') = true
+  - Reflect.set(user, 'age', 21, proxy_user)
+  - target === toRaw(receiver)？
+  - hadKey && hasChanged(21,20)
+  
+  trigger在hasChanged(21,20)被调用
+
+  防原型链set重复触发
 
   ---
   📌 题目 2：机制推理题（必须）
@@ -1116,28 +1128,39 @@ proxy_user.age = 21
 
   1. a.value.x = 2 能否触发「读取了 a.value.x 的 effect」？为什么？（提示：toReactive）
     - 触发，因为ref是对象类型，会toReactive包一层
+  
   2. b.x = 2 和 b.deep.y = 2，哪个能触发更新、哪个不能？为什么？
     - b.x能触发，d.deep.y不能触发更新，因为shallowReactive只代理第一层对象，深层对象不代理，直接返回原是值
+  
   3. c.x = 2 会发生什么？若通过 reactive 代理改底层值（reactiveProxy.x = 3），c 的视图会更新吗？为什么 readonly 自己不 track却还能更新？
-    - 在开发模式，会warn提示；会更新，因为readonly只在外层包装，里层的走toReactive({x:1})
-
+    - 在开发模式，会warn提示；会更新，因为readonly 的 get 不 track，但 Reflect.get 访问到底层 reactive 代理时，reactive 的 get 会 track，依赖收集在底层reactive
+  
   ---
   📌 题目 3：设计理解题（必须）
 
   1. ref 为什么用独立的 RefImpl 类，而不直接用 reactive({ value: x })？说出核心权衡（至少 2 点）。
-   - 因为proxy只能代理对象，基本类型不能代理；
-   - 需要区分引用类型还是基本类型，如果直接用 reactive({ value: x })，区分不了
+   - ①更轻量（reactive 走 Proxy 13 种 trap，ref 只一个 .value 访问器，不走 Proxy）；
+   - ②语义明确（__v_isRef 支持 isRef + 模板自动解包）
+  
   2. reactiveMap 为什么用 WeakMap 而不是普通 Map？如果用普通 Map 会有什么具体问题？
    - WeakMap 的key是原始对象，能够在不引用的时候进行CG
-   - this指向问题，WeakMap的this只想原始对象，这样能保证代理对象和原始对象是同一个引用，改代理对象的值就是改原始对象的值
+   - 普通 Map 强引用阻止原始对象被 GC，导致内存泄漏。
 
-1.1 是否isReactiive、是否isReadonly、是否isRef、是否ifObject判断；最终返回 proxy.user,子对象user被代理了
-1.2 1次，1次；在isObject(user)? reactive(user):user
-1.3 防不需要代理的对象，直接返回原是对象
-2.1 触发，因为ref是对象类型，会toReactive包一层
-2.2 b.x能触发，d.deep.y不能触发更新，因为shallowReactive只代理第一层对象，深层对象不代理，直接返回原是值
-2.3 在开发模式，会warn提示；会更新，因为readonly只在外层包装，里层的走toReactive({x:1})
-3.1  - 因为proxy只能代理对象，基本类型不能代理；
-     - 需要区分引用类型还是基本类型，如果直接用 reactive({ value: x })，区分不了
-3.2  - WeakMap 的key是原始对象，能够在不引用的时候进行CG
-     - this指向问题，WeakMap的this只想原始对象，这样能保证代理对象和原始对象是同一个引用，改代理对象的值就是改原始对象的值
+---
+
+### 考核总结（2026-08-11）
+
+**首测（题1-3）**：
+
+- **题1 源码追踪 ❌**：分支多写 isRef、漏缓存命中/targetType；返回值写成 `proxy.user`（应 `proxy`）；误判 user"已被代理"（应未代理）；get trap 答 1 次（两层应 2 次）；`target===toRaw(receiver)` 答成"防不代理对象"（应防原型链 set 重复触发）。
+- **题2 机制推理 ⚠️**：2.1 ✓（ref toReactive 深层响应）；2.2 ✓（shallowReactive 仅第一层）；2.3 结论对但机制错（误用 `toReactive` 解释 `readonly(reactive(o))`，应"依赖收集在底层 reactive 的 get"）。
+- **题3 设计理解 ⚠️**：3.1 答成"ref 存在原因"（应 RefImpl 轻量不走Proxy + `__v_isRef` 语义）；3.2 弱引用 GC 对，但"this 指向"误解（应"普通 Map 强引用阻止 GC 致内存泄漏"）。
+
+**补讲**：追加「补充串讲：响应式数据源码追踪调用链」（阶段 A 创建 / B 读 / C 写 + 三阶段串联记忆图）。
+
+**重测**：
+
+- **重测1 源码追踪 ✅**：5 分支全对、惰性代理时机对、set 流程对、防原型链重复触发对。三层 `a.b.c` = 3 次 get trap / 3 次 track；`a` 第1次、`b` 第2次惰性代理；`c` 原始值不代理（递归终止）。
+- **重测2 ✅**：2.3 `readonly(reactive)` 依赖收集在底层 reactive；3.1② `__v_isRef` 支持 isRef + 模板自动解包；3.2 WeakMap 弱引用防内存泄漏。
+
+**通过时间**：2026-08-11（主题块 1 全部 6 子节 mastered，mastery_level: 1）

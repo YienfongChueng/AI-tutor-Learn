@@ -7,50 +7,50 @@ nodes:
   "1.1":
     name: 为什么用 Proxy（vs Vue2 defineProperty）
     module: 响应式数据
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-11
+    mastery_level: 1
     core_question: Vue2 defineProperty 的根本缺陷是什么，Proxy 如何解决
   "1.2":
     name: reactive()：Proxy 创建 + handler 总览
     module: 响应式数据
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-11
+    mastery_level: 1
     core_question: reactive 如何用 Proxy 包裹对象（createReactiveObject 流程）
   "1.3":
     name: baseHandlers：get 触发 track、set 触发 trigger
     module: 响应式数据
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-11
+    mastery_level: 1
     core_question: get/set 拦截器如何与依赖系统衔接
   "1.4":
     name: ref()：为什么原始值不能 Proxy + 实现
     module: 响应式数据
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-11
+    mastery_level: 1
     core_question: ref 为何存在，原始值响应式如何实现
   "1.5":
     name: 深层响应式：惰性递归代理
     module: 响应式数据
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-11
+    mastery_level: 1
     core_question: 子对象何时被代理，惰性代理的性能好处
   "1.6":
     name: readonly / shallow 变体
     module: 响应式数据
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-11
+    mastery_level: 1
     core_question: 不同响应式变体的 handler 差异
   "2.1":
     name: effect()：ReactiveEffect 与 activeEffect
@@ -158,3 +158,4 @@ nodes:
 
 | 日期 | 节点 | 结果 | 备注 |
 |------|------|------|------|
+| 2026-08-11 | 1.1-1.6 | 通过 | 主题块1统一考核：首测题1源码追踪未过(漏缓存/targetType分支、get trap次数算错、防原型链判断错)、题2.3 toReactive误用、题3.1 RefImpl设计动机偏、题3.2 this指向误解；补讲串讲后重测通过。边界补:c原始值不代理(惰性递归终止) |
