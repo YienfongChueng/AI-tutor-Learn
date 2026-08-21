@@ -6,7 +6,8 @@ submodules:
   s1:
     name: 基础复盘（Vue 对照版）
     mode: knowledge
-    status: learning
+    status: mastered
+    completed_at: 2026-08-17
   s2:
     name: Hooks 深入
     mode: knowledge
@@ -72,10 +73,11 @@ nodes:
   "1.6":
     name: 组件通信方式全景（vs emit/expose/v-model）
     module: 基础复盘
-    status: learning
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 1
+    last_tested: 2026-08-17
+    mastery_level: 1
+    failure_type: detail
     core_question: 回调 props/组合组件如何替代 Vue 的双向通道
   "2.1":
     name: useState 深入：快照语义与批量更新
@@ -197,3 +199,8 @@ nodes:
 | 2026-08-17 | 1.3 | 通过 | attempts=1（多轮微调后通过）；主动提问快照vs函数式更新（补讲快递模型：传值=寄定格成品/传函数=寄指令单接流水线最新值）。TodoList调试：隐藏bug onClick={handleAdd()}立即执行✅、A/B的Object.is引用判定✅但修法代码错（A非法spread语法+给const赋值、B对象spread数组+原地改旧对象，已示范正解）、C更新丢失三轮后答出函数式更新✅ |
 | 2026-08-17 | 1.4 | 通过 | attempts=1（一轮微调后通过）；②③一次答对（key=id复用+key重置技巧）；①机制对（state挂位置）但结论推错：❤应在头部新消息上、"你好"的赞丢失显示空白，画位置对照表后修正。核心口诀：props跟数据走，state跟位置走 |
 | 2026-08-17 | 1.5 | 通过 | attempts=1（两轮微调后通过）；细节错误：checkbox 用 value 而非 checked、form 挂 onClick 而非 onSubmit、trim 当全局函数调用（同1.3把方法当独立函数的老毛病）；修完后新引入"isNaN 全局判断代替字段语义"（"007"会变7），按 name 分派后通过。加分：函数式更新防更新丢失一次写对 |
+| 2026-08-17 | 1.6 | 通过 | attempts=1（三轮+逃生舱）；架构判断一次全对（状态放父级/草稿放子组件/回调props）。硬伤回炉：addFn={setTodoList(...)}渲染期立即调用（同款错误第3次）、filter条件写反（===应为!==）、key="item.id"字符串字面量（1.4回炉）、list&&map漏{}。用户请求直接给答案（逃生舱）：完整代码+概念标准答案+10秒确认题（showToast回调props）答对。概念题术语混乱（"提升为受控"）已纠正：提升=上移到共同父级，受控=props驱动+回调上报，草稿=子组件私有态例外 | 模块1基础复盘完成 |
+
+## 模块完成状态
+
+- **s1 基础复盘：2026-08-17 完成**（6/6 节点 mastered，阶段总结见 summaries/react_basics.md）
