@@ -55,7 +55,7 @@ nodes:
   "2.1":
     name: effect()：ReactiveEffect 与 activeEffect
     module: 依赖收集与触发
-    status: pending
+    status: learning
     attempts: 0
     last_tested: null
     mastery_level: 0
@@ -63,7 +63,7 @@ nodes:
   "2.2":
     name: targetMap 三层结构
     module: 依赖收集与触发
-    status: pending
+    status: learning
     attempts: 0
     last_tested: null
     mastery_level: 0
@@ -71,7 +71,7 @@ nodes:
   "2.3":
     name: track()：当前 effect 如何进 dep
     module: 依赖收集与触发
-    status: pending
+    status: learning
     attempts: 0
     last_tested: null
     mastery_level: 0
@@ -79,7 +79,7 @@ nodes:
   "2.4":
     name: trigger()：找到 dep 并执行 effects
     module: 依赖收集与触发
-    status: pending
+    status: learning
     attempts: 0
     last_tested: null
     mastery_level: 0
@@ -159,3 +159,6 @@ nodes:
 | 日期 | 节点 | 结果 | 备注 |
 |------|------|------|------|
 | 2026-08-11 | 1.1-1.6 | 通过 | 主题块1统一考核：首测题1源码追踪未过(漏缓存/targetType分支、get trap次数算错、防原型链判断错)、题2.3 toReactive误用、题3.1 RefImpl设计动机偏、题3.2 this指向误解；补讲串讲后重测通过。边界补:c原始值不代理(惰性递归终止) |
+| 2026-08-17 | 2.1 | 讲解完成 | 子节2.1已写入raw-document待用户阅读；考核在主题块2全部讲完后统一进行 |
+| 2026-08-17 | 2.2-2.4 | 讲解完成 | targetMap三层结构/track标记位增量清理/trigger多dep聚合+ITERATE_KEY，待阅读 |
+| 2026-08-17 | - | 暂停 | 用户要求切换到 React 模块。⚠️ 恢复时注意：主题块2已讲 2.1-2.4（未考核，2.5/2.6 未讲），恢复时先补读 2.1-2.4 再继续 2.5，主题块2讲完后统一考核 |

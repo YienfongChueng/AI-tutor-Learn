@@ -55,24 +55,24 @@ nodes:
     module: 进阶类型
     status: mastered
     attempts: 1
-    last_tested: 2026-08-08
-    mastery_level: 1
+    last_tested: 2026-08-17
+    mastery_level: 2
     failure_type: null
   "2.3":
     name: 映射类型 & 索引签名
     module: 进阶类型
     status: mastered
     attempts: 2
-    last_tested: 2026-08-08
-    mastery_level: 1
+    last_tested: 2026-08-17
+    mastery_level: 2
     failure_type: close
   "3.1":
     name: 泛型基础（函数/接口/类）
     module: 泛型与类型体操
     status: mastered
     attempts: 1
-    last_tested: 2026-08-10
-    mastery_level: 1
+    last_tested: 2026-08-17
+    mastery_level: 2
     failure_type: close
   "3.2":
     name: 泛型约束（extends）
@@ -123,3 +123,6 @@ nodes:
 | 2026-08-11 | 1.4 | 复习通过 | Lv1->2；声明合并对称点确认(interface同名合并/type同名或混用报Duplicate) |
 | 2026-08-11 | 1.5 | 复习通过 | Lv1->2；as断言+HTMLInputElement目标正确；尖括号断言tsx限制答错(补:与JSX标签歧义,故tsx只能用as) |
 | 2026-08-11 | 2.1 | 复习通过 | Lv1->2；string&number=never不接任何值/联合取并集，上次漏答"能填什么值"本次答对 |
+| 2026-08-17 | 2.2 | 复习通过 | Lv1->2；守卫场景全对+自定义守卫信任式断言本质；补:Array.isArray是内置类型谓词`arg is any[]`，与自定义守卫同一机制 |
+| 2026-08-17 | 2.3 | 复习通过 | Lv1->2；映射核心对；漏答Partial改法(加`?`修饰符)，记入待追问点 |
+| 2026-08-17 | 3.1 | 复习通过 | Lv1->2；泛型本质(保留入参->返回类型精确关系)与any绕过检查答得准 |

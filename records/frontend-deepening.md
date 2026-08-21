@@ -7,13 +7,16 @@ blocks:
     name: Vue3 深入（响应式原理/源码）
     mode: deep-dive
     order: 1
-    status: learning
+    status: paused
+    paused_at: 2026-08-17
+    paused_note: 主题块1已通过；主题块2讲到2.4（未考核），恢复时先补读再讲2.5
     record: vue3.md
   react:
     name: React（基础复盘/hooks深入/工程化/实战/源码原理）
     mode: mixed
     order: 2
-    status: pending
+    status: learning
+    started_at: 2026-08-17
     record: react.md
   state:
     name: 数据流（Pinia/Mobx/Zustand）
