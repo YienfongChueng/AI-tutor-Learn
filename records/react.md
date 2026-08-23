@@ -11,7 +11,7 @@ submodules:
   s2:
     name: Hooks 深入
     mode: knowledge
-    status: pending
+    status: learning
   s3:
     name: 工程化
     mode: knowledge
@@ -82,7 +82,7 @@ nodes:
   "2.1":
     name: useState 深入：快照语义与批量更新
     module: Hooks 深入
-    status: pending
+    status: learning
     attempts: 0
     last_tested: null
     mastery_level: 0

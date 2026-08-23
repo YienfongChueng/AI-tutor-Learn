@@ -79,24 +79,24 @@ nodes:
     module: 泛型与类型体操
     status: mastered
     attempts: 2
-    last_tested: 2026-08-10
-    mastery_level: 1
+    last_tested: 2026-08-21
+    mastery_level: 2
     failure_type: conceptual
   "3.3":
     name: 条件类型 & infer
     module: 泛型与类型体操
     status: mastered
     attempts: 1
-    last_tested: 2026-08-10
-    mastery_level: 1
+    last_tested: 2026-08-21
+    mastery_level: 2
     failure_type: close
   "3.4":
     name: 内置工具类型实战
     module: 泛型与类型体操
     status: mastered
     attempts: 1
-    last_tested: 2026-08-10
-    mastery_level: 1
+    last_tested: 2026-08-21
+    mastery_level: 2
     failure_type: null
 ---
 
@@ -126,3 +126,6 @@ nodes:
 | 2026-08-17 | 2.2 | 复习通过 | Lv1->2；守卫场景全对+自定义守卫信任式断言本质；补:Array.isArray是内置类型谓词`arg is any[]`，与自定义守卫同一机制 |
 | 2026-08-17 | 2.3 | 复习通过 | Lv1->2；映射核心对；漏答Partial改法(加`?`修饰符)，记入待追问点 |
 | 2026-08-17 | 3.1 | 复习通过 | Lv1->2；泛型本质(保留入参->返回类型精确关系)与any绕过检查答得准 |
+| 2026-08-21 | 3.2 | 复习通过 | Lv1->2；getProp签名一次写对(T extends object + K extends keyof T + T[K]) |  
+| 2026-08-21 | 3.3 | 复习通过 | Lv1->2；infer本质答对；小瑕疵：结果答"U和T"未落到具体类型(string/number)，已精确化 |   
+| 2026-08-21 | 3.4 | 复习通过 | Lv1->2；Partial/Pick/Omit定义全对；场景题初答Readonly+Partial(未去掉id且全冻结)， 微调后Omit<User,'id'>正确；遗留点：不能改源接口时可选性应在派生类型做(Partial<Omit<...>> 或 Omit+Partial<Pick>) |  
