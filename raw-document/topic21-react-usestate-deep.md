@@ -141,4 +141,17 @@ setObj({...obj}) // 内容一样但引用变了 → Object.is 为 false → 照�
 
 ## 考核过程
 
-（此段在考核通过后追加填充）
+### 题目 1：三问结果预测题（快照 + 批量 + Object.is）
+
+题干：组件含 `count`（useState(0)）与 `user`（useState({name:'a'})）。点击一次执行 `setCount(count+1)` ×2、`setUser({...user})` ×2、`setTimeout(() => alert(count), 1000)`。问：①页面 count 显示几；②组件会不会重渲染，依据；③alert 弹几。
+
+**用户回答**：
+① 显示 1--一次渲染中 count 快照为 0，多次 setCount 拿的都是旧值；
+② 会重渲染，因为 user 引用地址变了，"Object.is 判断为 true"；
+③ 弹 0--count 是闭包里的快照值。
+
+**点评**：
+①③ 完全正确，快照语义和闭包捕获解释到位。②结论正确但机制表述自相矛盾（细节错误）：Object.is 判等为 true 时 React 会**跳过**渲染，重渲染恰恰因为 `Object.is(新引用, 旧引用) === false`。追问一轮后用户自我纠正："返回 false，引用地址不一样，所以为 false，重新渲染"。**通过**。
+
+---
+通过时间：2026-08-24

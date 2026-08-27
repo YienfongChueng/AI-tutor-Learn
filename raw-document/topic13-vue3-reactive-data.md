@@ -1164,3 +1164,40 @@ proxy_user.age = 21
 - **重测2 ✅**：2.3 `readonly(reactive)` 依赖收集在底层 reactive；3.1② `__v_isRef` 支持 isRef + 模板自动解包；3.2 WeakMap 弱引用防内存泄漏。
 
 **通过时间**：2026-08-11（主题块 1 全部 6 子节 mastered，mastery_level: 1）
+
+-------
+ const state = reactive({ count: 0 })
+
+  effect(() => {
+    console.log(state.count)   // 打印 0
+  })
+
+  state.count = 1              // 打印 1
+
+  请说明这段代码执行时，get 拦截器做了什么、set
+  拦截器又做了什么，依赖是怎么“存进去”又“取出来执行”的？（提示：两步各对应依赖系统的哪个方向）
+
+get -> track（收集），set -> trigger（触发），且点出了 Reflect 的角色（真正干活的是
+  Reflect.get/set，拦截器只是在旁边记账）
+
+effect.run() 执行副作用前：activeEffect = 自己
+          ↓
+  effect 里读 state.count
+          ↓ get 拦截器
+  Reflect.get 拿值 + track(target, 'count')
+          ↓
+  此刻全局只有一个 activeEffect → 收集它
+          ↓ 存入
+  targetMap: WeakMap<target, Map<key, Set<effect>>>   ← 三层结构
+          ...（之后某处）
+  state.count = 1
+          ↓ set 拦截器
+  Reflect.set 赋新值 + hasChanged 检查 + trigger(target, 'count')
+          ↓
+  按 target + key 从 targetMap 取出那个 Set → 遍历重新执行每个 effect
+
+  三个关键点：
+
+  1. track 靠 activeEffect 全局变量知道“现在是谁在读”--effect 执行前把自己挂上去，读操作发生时顺手收集（嵌套 effect 靠栈保存外层）。
+  2. 依赖存在 targetMap 三层结构里：WeakMap<原对象, Map<key, Set<effect>>>（WeakMap 的好处：原对象被销毁时整个依赖树自动被 GC）。
+  3. trigger 就是“按地址取件再派送”：用 target + key 定位到 Set，遍历执行所有 effect。

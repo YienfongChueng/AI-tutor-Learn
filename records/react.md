@@ -82,39 +82,43 @@ nodes:
   "2.1":
     name: useState 深入：快照语义与批量更新
     module: Hooks 深入
-    status: learning
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 1
+    last_tested: 2026-08-24
+    mastery_level: 1
+    failure_type: detail
     core_question: state 是快照不是引用，多次 set 如何合并
   "2.2":
     name: useEffect：副作用模型与依赖数组
     module: Hooks 深入
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-24
+    mastery_level: 1
+    failure_type: conceptual
     core_question: effect 的执行时机模型，依赖数组为何存在
   "2.3":
     name: useEffect 闭包陷阱与 cleanup
     module: Hooks 深入
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-27
+    mastery_level: 1
+    failure_type: detail
     core_question: 过期闭包如何产生，cleanup 解决什么
   "2.4":
     name: useRef：可变盒子与 DOM 引用
     module: Hooks 深入
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-27
+    mastery_level: 1
+    failure_type: conceptual
     core_question: ref 为什么不触发重渲染，两种用途
   "2.5":
     name: useContext 与状态提升的取舍
     module: Hooks 深入
-    status: pending
+    status: learning
     attempts: 0
     last_tested: null
     mastery_level: 0
@@ -200,6 +204,10 @@ nodes:
 | 2026-08-17 | 1.4 | 通过 | attempts=1（一轮微调后通过）；②③一次答对（key=id复用+key重置技巧）；①机制对（state挂位置）但结论推错：❤应在头部新消息上、"你好"的赞丢失显示空白，画位置对照表后修正。核心口诀：props跟数据走，state跟位置走 |
 | 2026-08-17 | 1.5 | 通过 | attempts=1（两轮微调后通过）；细节错误：checkbox 用 value 而非 checked、form 挂 onClick 而非 onSubmit、trim 当全局函数调用（同1.3把方法当独立函数的老毛病）；修完后新引入"isNaN 全局判断代替字段语义"（"007"会变7），按 name 分派后通过。加分：函数式更新防更新丢失一次写对 |
 | 2026-08-17 | 1.6 | 通过 | attempts=1（三轮+逃生舱）；架构判断一次全对（状态放父级/草稿放子组件/回调props）。硬伤回炉：addFn={setTodoList(...)}渲染期立即调用（同款错误第3次）、filter条件写反（===应为!==）、key="item.id"字符串字面量（1.4回炉）、list&&map漏{}。用户请求直接给答案（逃生舱）：完整代码+概念标准答案+10秒确认题（showToast回调props）答对。概念题术语混乱（"提升为受控"）已纠正：提升=上移到共同父级，受控=props驱动+回调上报，草稿=子组件私有态例外 | 模块1基础复盘完成 |
+| 2026-08-24 | 2.1 | 通过 | attempts=1（一轮微调后通过）；三问预测题：快照合并（显示1）✅、alert弹0✅ 一次答对；细节错误：setUser({...user})重渲染结论对但说"Object.is判断为true"（自相矛盾，应为false=引用不同=触发渲染），追问一轮后自我纠正。当日跳过了 Vue3 到期复习（1.1-1.3，见 vue3.md） |
+| 2026-08-24 | 2.2 | 通过 | attempts=2（多轮微调后通过）；B竞态修复题一次全对（ignore旗标+[id]），但主动提问暴露 ignore 变量覆盖困惑（以为新一轮函数体的 ignore=false 会被旧 cleanup 的 true 覆盖）--补讲"每轮 effect 独立闭包独立变量"后理解。A预测题：[] 场景 effect:0 对，但误认为 cleanup 会打印一次（漏"仅 deps 重跑/卸载才触发"）；[count]+3次点击+卸载的确认题首答"1条 effect:1"（概念性错误：以为 deps 只在最后一次变化时重跑），画三段式时间线后自己补全全部序列。卸载打印 cleanup:0/3（过期闭包）已埋点给 2.3 |
+| 2026-08-27 | 2.3 | 通过 | attempts=2（一轮未过+逃生舱+确认题）；三问：alert旧值✅但说"0次渲染"（混淆重渲染vs effect重跑）、deps修法✅但ref修法漏、cleanup后果套错代码（deps[]不堆积是僵尸handler；deps[name]才堆积弹N个alert）。逃生舱补讲后10秒确认题（重新发请求选deps/WebSocket读最新值选ref）全对。课前完成vue3复习：1.1✅ 1.2✅ 1.3❌（见vue3.md） |
+| 2026-08-27 | 2.4 | 通过 | attempts=2（重测+微调确认）；首轮两处概念性错误：①以为渲染时读不到.current新值（正确：setLog引发的重渲染会读活值，p显示3不是0，"永远显示0"前提是无任何state变化）②视频快进写成setCurrentTime函数式更新（应videoRef.current.currentTime+=10直拨DOM）。派生状态题（log.length）一次答对。重测Timer暂停题诊断对（应改useState）但预测错（界面冻结在"5s运行中"永不更新=撒谎，暂停期setSeconds被跳过无渲染）。微调确认（恢复运行后显示6s运行中）答对。核心教训已固化："渲染读活值，但只有state/props变化才触发渲染" |
 
 ## 模块完成状态
 

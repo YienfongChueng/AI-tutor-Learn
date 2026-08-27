@@ -9,23 +9,23 @@ nodes:
     module: 响应式数据
     status: mastered
     attempts: 2
-    last_tested: 2026-08-11
-    mastery_level: 1
+    last_tested: 2026-08-27
+    mastery_level: 2
     core_question: Vue2 defineProperty 的根本缺陷是什么，Proxy 如何解决
   "1.2":
     name: reactive()：Proxy 创建 + handler 总览
     module: 响应式数据
     status: mastered
     attempts: 2
-    last_tested: 2026-08-11
-    mastery_level: 1
+    last_tested: 2026-08-27
+    mastery_level: 2
     core_question: reactive 如何用 Proxy 包裹对象（createReactiveObject 流程）
   "1.3":
     name: baseHandlers：get 触发 track、set 触发 trigger
     module: 响应式数据
     status: mastered
     attempts: 2
-    last_tested: 2026-08-11
+    last_tested: 2026-08-27
     mastery_level: 1
     core_question: get/set 拦截器如何与依赖系统衔接
   "1.4":
@@ -162,3 +162,7 @@ nodes:
 | 2026-08-17 | 2.1 | 讲解完成 | 子节2.1已写入raw-document待用户阅读；考核在主题块2全部讲完后统一进行 |
 | 2026-08-17 | 2.2-2.4 | 讲解完成 | targetMap三层结构/track标记位增量清理/trigger多dep聚合+ITERATE_KEY，待阅读 |
 | 2026-08-17 | - | 暂停 | 用户要求切换到 React 模块。⚠️ 恢复时注意：主题块2已讲 2.1-2.4（未考核，2.5/2.6 未讲），恢复时先补读 2.1-2.4 再继续 2.5，主题块2讲完后统一考核 |
+| 2026-08-24 | - | 跳过复习 | 用户明确要求跳过 Vue3 到期复习（1.1-1.3），直接继续 React。节点保持 mastery_level 1 不变，到期状态保留，下次启动继续提醒 |
+| 2026-08-27 | 1.1 | 复习通过 | 一次答对：defineProperty 按 key 逐个劫持、监测不到新增/删除/下标/长度，Proxy 按操作劫持整个对象。mastery_level 1->2，下次复习 7 天后 |
+| 2026-08-27 | 1.2 | 复习通过 | 一次答对：五道关卡（非对象警告/已代理返回/proxyMap缓存/invalid不代理/选handler+缓存）+ baseHandlers vs collectionHandlers 不是同一个。mastery_level 1->2，下次复习 7 天后 |
+| 2026-08-27 | 1.3 | 复习未通过 | 主干对（get→track/set→trigger/Reflect干活），但 track 靠 activeEffect 定位、targetMap 三层结构、trigger 取出遍历执行三点没答出，用户要求直接给答案。mastery_level 保持 1（回到起点），last_tested 更新，3 天后再复习。此机制是主题块2（2.2/2.3）地基，恢复 Vue3 时先过这个 |
