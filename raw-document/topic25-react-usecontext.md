@@ -100,4 +100,14 @@ Vue 的依赖收集让 inject 天然"按需"；React 的 Context 是"广播"，�
 
 ## 考核过程
 
-（此段在考核通过后追加填充）
+### 题目 1：App 无关 state 变化的广播三问
+
+**用户回答**：
+1. 会重渲染。两层原因：① fontSize 更新 -> App 重渲染，子组件即使 props 没变也跟着渲染（组件树通则）；② Context 广播，App 重渲染后整棵树使用 useContext 的组件都会渲染
+2. `const userMemo = useMemo(() => ({ user, setUser }), [user])`，传入 Provider
+3. (a) 该用 ✅ (b) 不该用，用状态管理库 ✅ (c) 该用 ✅ (d) 不该用，用状态管理库 ✅
+
+**点评**：✅ 通过（attempts=1 一次全对）。第 1 问两层原因齐全；第 2 问 useMemo + [user] 依赖正确（setUser 引用稳定无需进 deps）。补充精确化：广播的扳机是 value 每次渲染造新对象 -> Object.is 判变 -> 消费者全体检疫。
+
+---
+通过时间：2026-08-27

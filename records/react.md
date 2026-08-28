@@ -118,15 +118,16 @@ nodes:
   "2.5":
     name: useContext 与状态提升的取舍
     module: Hooks 深入
-    status: learning
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 1
+    last_tested: 2026-08-27
+    mastery_level: 1
+    failure_type: null
     core_question: context 的重渲染粒度，何时该用/不该用
   "2.6":
     name: useMemo/useCallback 与重渲染优化
     module: Hooks 深入
-    status: pending
+    status: learning
     attempts: 0
     last_tested: null
     mastery_level: 0
@@ -208,6 +209,7 @@ nodes:
 | 2026-08-24 | 2.2 | 通过 | attempts=2（多轮微调后通过）；B竞态修复题一次全对（ignore旗标+[id]），但主动提问暴露 ignore 变量覆盖困惑（以为新一轮函数体的 ignore=false 会被旧 cleanup 的 true 覆盖）--补讲"每轮 effect 独立闭包独立变量"后理解。A预测题：[] 场景 effect:0 对，但误认为 cleanup 会打印一次（漏"仅 deps 重跑/卸载才触发"）；[count]+3次点击+卸载的确认题首答"1条 effect:1"（概念性错误：以为 deps 只在最后一次变化时重跑），画三段式时间线后自己补全全部序列。卸载打印 cleanup:0/3（过期闭包）已埋点给 2.3 |
 | 2026-08-27 | 2.3 | 通过 | attempts=2（一轮未过+逃生舱+确认题）；三问：alert旧值✅但说"0次渲染"（混淆重渲染vs effect重跑）、deps修法✅但ref修法漏、cleanup后果套错代码（deps[]不堆积是僵尸handler；deps[name]才堆积弹N个alert）。逃生舱补讲后10秒确认题（重新发请求选deps/WebSocket读最新值选ref）全对。课前完成vue3复习：1.1✅ 1.2✅ 1.3❌（见vue3.md） |
 | 2026-08-27 | 2.4 | 通过 | attempts=2（重测+微调确认）；首轮两处概念性错误：①以为渲染时读不到.current新值（正确：setLog引发的重渲染会读活值，p显示3不是0，"永远显示0"前提是无任何state变化）②视频快进写成setCurrentTime函数式更新（应videoRef.current.currentTime+=10直拨DOM）。派生状态题（log.length）一次答对。重测Timer暂停题诊断对（应改useState）但预测错（界面冻结在"5s运行中"永不更新=撒谎，暂停期setSeconds被跳过无渲染）。微调确认（恢复运行后显示6s运行中）答对。核心教训已固化："渲染读活值，但只有state/props变化才触发渲染" |
+| 2026-08-27 | 2.5 | 通过 | attempts=1 一次全对：两层重渲染原因（父渲染子必渲染+Context广播）、useMemo包value+[user]依赖（setUser稳定不进deps）、四场景判断（用户/主题✅，高频关键词/表单联动->状态库）。仅补精确化：广播扳机是value每次新对象Object.is判变 |
 
 ## 模块完成状态
 
