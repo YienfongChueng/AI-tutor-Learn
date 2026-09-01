@@ -90,4 +90,23 @@ const handleSelect = useCallback(
 
 ## 考核过程
 
-（此段在考核通过后追加填充）
+### 题目 1：TodoList + memo Row 四问
+
+**用户回答**：
+1. 渲染 1 次；keyword 变化引起 App 及子组件重渲染，visible 每次新引用，props 变化
+2. `useMemo(() => { todos.filter(...) }, [keyword])`；`useCallback(() => (id) => setTodos(ts => ts.filter(t.id !== id)), [todos])`
+3. 不知道
+4. 不知道
+
+**点评**：未通过。
+- 第 1 问：次数错（应为 2 次，两个 Row 都渲染）；且找错凶手--visible 新数组**不是 Row 的 prop**，真正击穿 memo 的只有 onRemove（每轮新函数）。data/label 引用稳定
+- 第 2 问：概念方向对但代码两处硬伤--useMemo 大括号不 return（返回 undefined）、useCallback 多包一层箭头+filter 丢箭头；deps [todos] 错（函数体没读 todos，依赖数组写的是体内用到的外部变量）
+- 第 3、4 问：不知道，重讲
+
+### 补充对话
+
+- 重讲：逐 prop Object.is 表格；"数组换新壳不要紧，壳里元素还是原来那些就行"；deps 判定规则（体内用到的外部变量）；"全包保险"四个反对理由（开销/藏旧闭包 bug/噪音/先测量先下沉）
+- 重测题（ProductCard + Price）：三问全对--① coupon 变化 Price 渲染，handleChange 击穿（逐 prop 分析正确）② `useCallback((v) => setAmount(Number(v)), [])`，setAmount 稳定不进 deps ③ 拆掉 memo 只留 useCallback 仍会渲染，说明三件套咬合缺一环全失效
+
+---
+通过时间：2026-08-27（重测通过）

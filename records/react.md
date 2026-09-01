@@ -11,7 +11,8 @@ submodules:
   s2:
     name: Hooks 深入
     mode: knowledge
-    status: learning
+    status: mastered
+    completed_at: 2026-09-01
   s3:
     name: 工程化
     mode: knowledge
@@ -127,18 +128,20 @@ nodes:
   "2.6":
     name: useMemo/useCallback 与重渲染优化
     module: Hooks 深入
-    status: learning
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-08-27
+    mastery_level: 1
+    failure_type: conceptual
     core_question: 重渲染何时发生，memo 三件套的正确用法
   "2.7":
     name: 自定义 Hook 实战
     module: Hooks 深入
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 3
+    last_tested: 2026-09-01
+    mastery_level: 1
+    failure_type: detail
     core_question: 自定义 hook 的本质是逻辑复用而非生命周期
   "3.1":
     name: Vite + React 项目结构与脚手架
@@ -210,6 +213,13 @@ nodes:
 | 2026-08-27 | 2.3 | 通过 | attempts=2（一轮未过+逃生舱+确认题）；三问：alert旧值✅但说"0次渲染"（混淆重渲染vs effect重跑）、deps修法✅但ref修法漏、cleanup后果套错代码（deps[]不堆积是僵尸handler；deps[name]才堆积弹N个alert）。逃生舱补讲后10秒确认题（重新发请求选deps/WebSocket读最新值选ref）全对。课前完成vue3复习：1.1✅ 1.2✅ 1.3❌（见vue3.md） |
 | 2026-08-27 | 2.4 | 通过 | attempts=2（重测+微调确认）；首轮两处概念性错误：①以为渲染时读不到.current新值（正确：setLog引发的重渲染会读活值，p显示3不是0，"永远显示0"前提是无任何state变化）②视频快进写成setCurrentTime函数式更新（应videoRef.current.currentTime+=10直拨DOM）。派生状态题（log.length）一次答对。重测Timer暂停题诊断对（应改useState）但预测错（界面冻结在"5s运行中"永不更新=撒谎，暂停期setSeconds被跳过无渲染）。微调确认（恢复运行后显示6s运行中）答对。核心教训已固化："渲染读活值，但只有state/props变化才触发渲染" |
 | 2026-08-27 | 2.5 | 通过 | attempts=1 一次全对：两层重渲染原因（父渲染子必渲染+Context广播）、useMemo包value+[user]依赖（setUser稳定不进deps）、四场景判断（用户/主题✅，高频关键词/表单联动->状态库）。仅补精确化：广播扳机是value每次新对象Object.is判变 |
+| 2026-08-27 | 2.6 | 通过 | attempts=2（首轮未过+重测全对）；首轮错误：渲染次数算错（2个Row打2次）、找错memo击穿者（以为visible新数组是prop，真凶是onRemove新函数）、useMemo大括号不return+useCallback多包一层箭头、deps误写[todos]（体内没读todos）、微妙预测与优化纪律两问答不知道。重讲"逐prop Object.is+数组换新壳元素稳定即可+deps=体内外部变量+四反对理由"后重测三问全对（Price逐prop定位/[] deps/拆memo仍渲染=三件套咬合）。同款老毛病再现：把方法/函数当独立语法乱包（见1.3/1.5） |
+| 2026-09-01 | 2.7 | 通过 | attempts=3（未尝试+积木引导+修正）；useCounter预测结果对但fiber归属错（a/b不是组件，两个state都挂App的fiber，靠调用顺序分槽位--顶层调用铁律的根因）；两句辨析（非单例/非生命周期）一次全对；useDebounce首版结构对但致命bug：return clearTimeout(timer)当场执行掐死定时器（"把调用当传递"第4次，口诀：括号=现在就干，不加括号=到时候再干）+函数式更新滥用；修正后代码与防抖解释全对 | 模块2 Hooks 深入完成，阶段总结见 summaries/react_hooks.md |
+
+## 模块完成状态
+
+- **s1 基础复盘：2026-08-17 完成**（6/6 节点 mastered，阶段总结见 summaries/react_basics.md）
+- **s2 Hooks 深入：2026-09-01 完成**（7/7 节点 mastered，阶段总结见 summaries/react_hooks.md）
 
 ## 模块完成状态
 
