@@ -16,11 +16,14 @@ submodules:
   s3:
     name: 工程化
     mode: knowledge
-    status: pending
+    status: mastered
+    completed_at: 2026-09-03
   s4:
-    name: 实战项目
+    name: 实战项目（记账本）
     mode: project
-    status: pending
+    status: learning
+    started_at: 2026-09-03
+    project: 记账本（Vite+React+TS / json-server / TanStack Query / Context / React Router）
   s5:
     name: 源码原理（Fiber/Hooks 链表/调度）
     mode: deep-dive
@@ -146,43 +149,142 @@ nodes:
   "3.1":
     name: Vite + React 项目结构与脚手架
     module: 工程化
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-09-01
+    mastery_level: 1
+    failure_type: detail
     core_question: 标准项目结构、StrictMode 的双调用
   "3.2":
     name: React Router（路由与嵌套/守卫）
     module: 工程化
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-09-01
+    mastery_level: 1
+    failure_type: conceptual
     core_question: 声明式路由对照 vue-router 的映射
   "3.3":
     name: 数据请求与服务端状态（async/TanStack Query 选讲）
     module: 工程化
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-09-03
+    mastery_level: 1
+    failure_type: detail
     core_question: 请求放哪、缓存与重复请求谁管
   "3.4":
     name: 性能优化清单（memo/lazy/Suspense）
     module: 工程化
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 2
+    last_tested: 2026-09-03
+    mastery_level: 1
+    failure_type: detail
     core_question: 什么时候优化、先测后优化的路径
   "4.1":
-    name: 实战项目（project 模式，启动时再拆节点）
-    module: 实战项目
+    name: 项目初始化（Vite 脚手架/目录/json-server/API 封装）
+    module: 里程碑1 MVP
+    status: mastered
+    attempts: 1
+    last_tested: 2026-09-04
+    mastery_level: 1
+    failure_type: null
+    core_question: 脚手架产物怎么组织成可维护结构，api 层怎么封装
+  "4.2":
+    name: 账目列表页（useQuery 拉取与展示）
+    module: 里程碑1 MVP
+    status: mastered
+    attempts: 1
+    last_tested: 2026-09-04
+    mastery_level: 1
+    failure_type: null
+    core_question: queryKey 设计与 loading/error UI
+  "4.3":
+    name: 记一笔（表单 + useMutation + invalidate）
+    module: 里程碑1 MVP
+    status: mastered
+    attempts: 3
+    last_tested: 2026-09-04
+    mastery_level: 1
+    failure_type: detail
+    core_question: 受控表单、mutation 成功后失效哪个 key
+  "4.4":
+    name: 布局路由与导航（Layout + Outlet + NavLink）
+    module: 里程碑2 路由与详情
+    status: mastered
+    attempts: 1
+    last_tested: 2026-09-08
+    mastery_level: 1
+    failure_type: null
+    core_question: 布局路由结构、激活态导航
+  "4.5":
+    name: 详情页（动态路由 useParams + 单条查询）
+    module: 里程碑2 路由与详情
+    status: mastered
+    attempts: 1
+    last_tested: 2026-09-10
+    mastery_level: 1
+    failure_type: null
+    core_question: 动态参数、详情 key 设计（列表数据可否直接用）
+  "4.6":
+    name: 编辑与删除（mutation + 确认交互）
+    module: 里程碑2 路由与详情
+    status: mastered
+    attempts: 1
+    last_tested: 2026-09-21
+    mastery_level: 1
+    failure_type: null
+    core_question: PUT/DELETE 的 mutation 与失效范围
+  "4.7":
+    name: 筛选（类型/月份，URL query 持久化）
+    module: 里程碑3 筛选与统计
+    status: mastered
+    attempts: 1
+    last_tested: 2026-09-22
+    mastery_level: 1
+    failure_type: null
+    core_question: useSearchParams 做可分享的筛选状态
+  "4.8":
+    name: 搜索防抖（自定义 Hook useDebounce 实战）
+    module: 里程碑3 筛选与统计
     status: pending
     attempts: 0
     last_tested: null
     mastery_level: 0
-    core_question: 用 React 复刻一个带路由/请求/状态管理的完整应用
+    core_question: 2.7 的 useDebounce 接入 Query 的 key
+  "4.9":
+    name: 统计页（派生计算 + 分类汇总）
+    module: 里程碑3 筛选与统计
+    status: pending
+    attempts: 0
+    last_tested: null
+    mastery_level: 0
+    core_question: 派生不存储、useMemo 的正确时机
+  "4.10":
+    name: mock 登录（Context + localStorage）+ RequireAuth 守卫
+    module: 里程碑4 登录与收尾
+    status: pending
+    attempts: 0
+    last_tested: null
+    mastery_level: 0
+    core_question: 登录态的 Context 化与路由保护
+  "4.11":
+    name: 性能收尾（路由 lazy + Suspense + Profiler 巡检）
+    module: 里程碑4 登录与收尾
+    status: pending
+    attempts: 0
+    last_tested: null
+    mastery_level: 0
+    core_question: 3.4 优化清单落地
+  "4.12":
+    name: 项目收尾（README + 架构图 + 复盘）
+    module: 里程碑4 登录与收尾
+    status: pending
+    attempts: 0
+    last_tested: null
+    mastery_level: 0
+    core_question: 完整应用的技术串联与自我表达
   "5.1":
     name: 源码原理（deep-dive 模式，启动时再拆主题块）
     module: 源码原理
@@ -215,12 +317,30 @@ nodes:
 | 2026-08-27 | 2.5 | 通过 | attempts=1 一次全对：两层重渲染原因（父渲染子必渲染+Context广播）、useMemo包value+[user]依赖（setUser稳定不进deps）、四场景判断（用户/主题✅，高频关键词/表单联动->状态库）。仅补精确化：广播扳机是value每次新对象Object.is判变 |
 | 2026-08-27 | 2.6 | 通过 | attempts=2（首轮未过+重测全对）；首轮错误：渲染次数算错（2个Row打2次）、找错memo击穿者（以为visible新数组是prop，真凶是onRemove新函数）、useMemo大括号不return+useCallback多包一层箭头、deps误写[todos]（体内没读todos）、微妙预测与优化纪律两问答不知道。重讲"逐prop Object.is+数组换新壳元素稳定即可+deps=体内外部变量+四反对理由"后重测三问全对（Price逐prop定位/[] deps/拆memo仍渲染=三件套咬合）。同款老毛病再现：把方法/函数当独立语法乱包（见1.3/1.5） |
 | 2026-09-01 | 2.7 | 通过 | attempts=3（未尝试+积木引导+修正）；useCounter预测结果对但fiber归属错（a/b不是组件，两个state都挂App的fiber，靠调用顺序分槽位--顶层调用铁律的根因）；两句辨析（非单例/非生命周期）一次全对；useDebounce首版结构对但致命bug：return clearTimeout(timer)当场执行掐死定时器（"把调用当传递"第4次，口诀：括号=现在就干，不加括号=到时候再干）+函数式更新滥用；修正后代码与防抖解释全对 | 模块2 Hooks 深入完成，阶段总结见 summaries/react_hooks.md |
+| 2026-09-01 | 3.1 | 通过 | attempts=2（预测错+两轮确认）；辨析/输出序列/Vue对照全对；渲染期写ref的预测错（把JSX显示值当成++表达式的返回值，正解开发2生产1）；确认题"移进useEffect后显示几"答1（❌应为0：effect在渲染后执行+改ref不触发重渲染，Vue直觉翻车），最终确认（重渲染后显示2+活值理由）答对并主动提问StrictMode时序--补讲"双渲染是同一提交内连续两次函数调用，中间无effect" |
+| 2026-09-01 | 3.2 | 通过 | attempts=2（补答通过）；RequireAuth编码逻辑全对（Navigate+state.from+replace+Login跳转行一字不差）但((children))双括号语法错（第5次手滑）；硬伤：①漏审题"未登录"三连预测首问答成Outlet换Orders（实际被守卫踢到/login）②replace理由答"更新state数据"（实为浏览器历史栈操作，登录后后退不该回/login）③"state被覆盖"表述不准（应为卸载销毁）。补答两问全对（已登录全程不出布局路由state保留/详情push+404返回replace） |
+| 2026-09-03 | 3.3 | 通过 | attempts=2（补答通过）；用户主动要求追加TanStack Query零基础详解（补1-8）后考核。主体对：缓存时间线（旧数据秒出/骨架屏）、前缀匹配命中判断、并发去重结论；修正：①queryKey修法写['user','userId']字符串字面量（1.6 key="item.id"同款错误第2次）②失效流vs直写流不懂（补讲三理由：服务器真相/不拼形状/只需知什么变了）③去重理由误说"缓存数据"（首挂无缓存，是并发合并）④补问题答串一次。userId 1→2补答通过（新key新条目发请求，旧key转inactive等gc） |
+| 2026-09-03 | 3.4 | 通过 | attempts=2（微调确认）；优化排序（测量→下沉→分割→虚拟化→memo）一次全对、四场景配对全对、keep-alive迁移题答对（无内置/卸载丢状态/路由外+store，补URL query最佳实践）；唯一错点：以为第二次访问仍见fallback（fallback只跟chunk在不在本地有关，已缓存则Promise立即resolve）；微调确认（发版后chunk名变）答对并顺势理解hash缓存击穿设计 | 模块3工程化完成，阶段总结见 summaries/react_engineering.md |
 
 ## 模块完成状态
 
 - **s1 基础复盘：2026-08-17 完成**（6/6 节点 mastered，阶段总结见 summaries/react_basics.md）
 - **s2 Hooks 深入：2026-09-01 完成**（7/7 节点 mastered，阶段总结见 summaries/react_hooks.md）
+- **s3 工程化：2026-09-03 完成**（4/4 节点 mastered，阶段总结见 summaries/react_engineering.md）
+- **s4 里程碑2 路由与详情：2026-09-21 完成**（4.4-4.6，项目模式无独立阶段总结，见 summaries/expense-tracker_m2-routing.md）
 
-## 模块完成状态
+## 实战项目进度（s4 记账本，node 4.x 见上方 frontmatter）
 
-- **s1 基础复盘：2026-08-17 完成**（6/6 节点 mastered，阶段总结见 summaries/react_basics.md）
+| 日期 | 节点 | 结果 | 备注 |
+|------|------|------|------|
+| 2026-09-04 | 4.1 | 通过 | 选型：记账本 + json-server + TanStack Query + axios（未用 fetch 参考版，自主选 axios）+ Context。Vite react-ts 搭好，@ 路径别名 vite+tsconfig 双配。依赖坑：scss 装错包（实为 sass，已换）。json-server v1 beta 行为：--watch 已废弃默认监听、id 返回 string。端口 3001 被占主动改 3002。目录：api/{client,records} + components + pages，组件用 index.tsx+module.scss 文件夹式 |
+| 2026-09-04 | 4.2 | 通过 | axios 实例 + CRUD 全 API + RecordItem 类型（主动改名避开内置 Record 泛型冲突，采纳上节建议）。RecordsPage：useQuery ['records']、isLoading/isError + invalidate 重试、key={record.id}（非 index）、income/expense 分色。client.ts 的 request interceptor 预留 4.10 token 位；response interceptor 现为纯透传 |
+| 2026-09-04 | 4.3 | 通过 | attempts=3（参考实现+自己改对）。手写版审查揪出：①发明 id（Math.random 传 POST，应 Omit 掉交给 json-server 生成）②reset 时序错（mutate 后同步读 isSuccess 恒 false；且 form.reset 重置 DOM 与受控 state 脱节，应 onSuccess 里 setFormData 初值）③无初始值→受控/非受控切换 warning+type 字段丢失④useRef(null) 缺泛型⑤(e)=>implicit any×2。参考版引入：NewRecord=Omit<RecordItem,'id'>、FormState 草稿类型（amount 表单期 string 提交时 Number()）、EMPTY_FORM 放组件外、FormEvent 类型。自己改回后 tsc 0 错误（额外学：React.ChangeEvent 泛型、SubmitEvent） |
+| 2026-09-07 | 4.4 | 开始 | 恢复时跳过全部到期复习（用户选择：TS/Vue/React基础/4.1-4.3 均顺延）。当前：App.tsx 直渲 RecordsPage、main.tsx 仅 QueryClientProvider，react-router-dom v7 未接线。目标：Layout+Outlet+NavLink 布局路由，记一笔拆独立页 |
+| 2026-09-08 | 4.4 | 通过 | 用户自主引入 antd-mobile 重构列表/表单（List/ErrorBlock/SpinLoading/Form/DatePicker/Toast）。代码审查+修 2 轮：①TS6133（onClick e 未用）②真 bug：navigate 紧跟 mutate 立即跳转→POST 失败也被踢回列表且无 onError；改放 onSuccess + 加 onError Toast（成功才跳）。自查纠偏：DatePicker trigger='onConfirm'+onClick open 为标准示例；ErrorBlock 会渲染 children（重试按钮有效）；antd 样式自动按需引入（sideEffects 声明）；表单空 scss 无引用。验收 5 条行为通过，tsc 0 错误。考核 3 问用户请求直接给答案（逃生舱，未自答），**下次复习重点测：①布局复用=父路由 element 不卸载只换 Outlet 子组件 ②NavLink 激活=段边界匹配+end，to=/ 天然仅精确命中（源码 chunk:491） ③invalidate 挂 queryClient 因缓存住 queryClient 组件会死缓存不会**。遗留（4.5 用）：详情页 /records/:id 下让"账目"高亮需段根 /records |
+| 2026-09-08 | 4.5 | 开始 | 启动时再次跳过全部到期复习（TS 最早批 08-17 到期、React 1.x-4.3 全过期、4.4 逃生舱 3 问未自测——继续顺延，欠账滚动累积）。4.5 目标：useParams 动态路由 + 单条查询 key 设计 + 列表点击进详情 |
+| 2026-09-10 | 4.5 | 通过 | 选了方案A（独立请求，B initialData 后补）。方案讲解环节即埋考点。代码审查修 2 轮：🔴①queryFn: getRecordById(params.id||'')把调用当传递（**第5次**，且是全部TS连环错的震中）→ queryFn: ()=>getRecordById(params.id!)；🔴②onClick={()=>handleBack}箭头返回函数不执行（口诀两面性补全：括号=现在就干/不加括号=交出去等人调）。追问"No routes matched /record/"→补讲**路由匹配在组件之前**的流水线（/record/ 匹配不到 :id 需空段 → Routes渲染null白屏；组件内守卫没机会跑）→ 加 catch-all `path="*"` NotFoundPage（放"/" children最后保导航栏）。if(!params.id) 可达性讨论：当前路由配置下是纯防御（路由保证id存在），临时加无参路由/可选段 :id?/单测 MemoryRouter 三种可达路径。验收 5/5 过。考核：Q1层级key前缀失效不会（讲解：key=缓存目录树/前缀=目录，4.6 编辑需同时失效 ['records'] 和 ['record',id] 两棵树）；Q2两层兜底归因全对（路由层 vs 数据层）；Q3接近（误说默认30s、漏stale-while-revalidate——补：staleTime管新不新鲜gcTime管在不在，过期≠删除，先渲旧缓存后台刷新）。**复习重点：Q1前缀失效 + staleTime/gcTime 区分**。遗留：NotFoundPage 还是裸文案（待升级 ErrorBlock+回首页） |
+| 2026-09-10 | 4.6 | 开始 | 里程碑2 收官：PUT/DELETE mutation + 失效两棵 key 树 + Dialog.confirm 确认 + 异步数据预填表单的坑（async initialValues） |
+| 2026-09-21 | 4.6 | 通过 | 自主重构：抽共享组件 AddOrEditForm（record?: RecordItem|null + isEdit 分支 + recordToFormState 转换器 String(amount)/toDate()），Add/Edit 两页复用。课前答 Q3（编辑失效两棵树/删除不管详情树）Q4（replace 语义）全对。审查修 3 红：①invalidate({queryKey:['records','record']})想一次失效两棵树把 key 并成数组——**前缀语义没吃透（Q1 考过仍错）**，正解两句话各失效一棵；②删除的 invalidate(['records']) 被注释残留；③async initialValues 坑**被详情缓存意外掩护**（从详情进编辑 30s 缓存新鲜→data 首渲染同步可用→侥幸过），硬刷新即露馅——修法 `if(!data) return SpinLoading; return <AddOrEditForm/>`（顺带教学：return 后裸 {} 是对象字面量不是 JSX 占位，TS1005）。小项：Form.Header 动态文案/id 单点添加/as 断言消除/死 import。验收 7/7 过（含硬刷新编辑页补撞坑）。里程碑2 路由与详情完成，总结见 summaries/expense-tracker_m2-routing.md |
+| 2026-09-21 | 4.7 | 开始 | 里程碑3 第一节点：服务端筛选（已确认 json-server v1 beta.15 支持 ?type= 与 ?date_gte/_lte，日期字符串字典序可比）。新增概念：useSearchParams、queryKey 含筛选参数（衔接 3.3 userId 换 key）、空态 vs 错误态 |
+| 2026-09-22 | 4.7 | 通过 | 课前答 Q1（setSearchParams 整体替换→函数式展开 prev）Q2（invalidate(['records']) 前缀命中所有筛选组合）全对——4.6 前缀坑这次用对了。亮点：自创 date_contains=YYYY-MM 匹配整月（优于 gte/lte 区间方案）、方言转换留 api 层、isSuccess 区分空态/错误态。审查修 3 轮：🟠①selectDate useState 与 URL 双状态源（违反"URL 是唯一真相源"，硬刷新按钮文案与数据脱节）→删 state 从 URL 派生；🟠②resetDate 直接 searchParams.delete() 改在只读快照上不生效（读写分离：searchParams 只读，写必须走 setSearchParams）；🟡③FilterRender 组件定义在组件内部→每次渲染重挂子树→改 JSX 变量消除组件边界。Empty 提取/图标语义等杂项。验收 7/7 过（含刷新保筛选、✕ 清除月份）。遗留：行内注释 icons 块再留一轮（下轮必删）、FilterRender 命名建议 filterBar |

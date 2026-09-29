@@ -106,3 +106,19 @@ function handle(s: Status) {
 ## 下一步
 
 模块 3「泛型与类型体操」是本主题的高潮，会用到本模块的联合、keyof、映射类型。建议休息一下再继续——泛型需要清醒的头脑。
+
+## 额外补充
+
+```
+keyof T
+→ 获取 T 的所有 key
+
+typeof value
+→ 获取 value 的类型
+
+T[K]
+→ 获取 T 中 K 对应的 value 类型
+
+K extends keyof T
+→ K 必须是 T 的合法 key
+```
