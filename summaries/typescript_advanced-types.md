@@ -122,3 +122,40 @@ T[K]
 K extends keyof T
 → K 必须是 T 的合法 key
 ```
+
+```
+工具类型
+│
+├── 修改属性
+│   ├── Partial
+│   ├── Required
+│   └── Readonly
+│
+├── 选择属性
+│   ├── Pick
+│   └── Omit
+│
+├── 联合类型处理
+│   ├── Exclude
+│   ├── Extract
+│   └── NonNullable
+│
+├── 函数类型处理
+│   ├── ReturnType
+│   ├── Parameters
+│   └── Awaited
+│
+└── 对象映射
+    └── Record
+```
+
+```
+// 已经是类型 → 直接 keyof
+type A = keyof User
+
+// 是变量 → 先 typeof，再 keyof
+type B = keyof typeof ROLE
+
+// 变量的属性值类型
+type C = typeof ROLE[keyof typeof ROLE]
+```
