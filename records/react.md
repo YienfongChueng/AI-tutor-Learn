@@ -21,8 +21,9 @@ submodules:
   s4:
     name: 实战项目（记账本）
     mode: project
-    status: learning
+    status: mastered
     started_at: 2026-09-03
+    completed_at: 2026-11-19
     project: 记账本（Vite+React+TS / json-server / TanStack Query / Context / React Router）
   s5:
     name: 源码原理（Fiber/Hooks 链表/调度）
@@ -214,8 +215,8 @@ nodes:
     module: 里程碑2 路由与详情
     status: mastered
     attempts: 1
-    last_tested: 2026-09-08
-    mastery_level: 1
+    last_tested: 2026-11-17
+    mastery_level: 2
     failure_type: null
     core_question: 布局路由结构、激活态导航
   "4.5":
@@ -223,8 +224,8 @@ nodes:
     module: 里程碑2 路由与详情
     status: mastered
     attempts: 1
-    last_tested: 2026-09-10
-    mastery_level: 1
+    last_tested: 2026-11-17
+    mastery_level: 2
     failure_type: null
     core_question: 动态参数、详情 key 设计（列表数据可否直接用）
   "4.6":
@@ -248,42 +249,47 @@ nodes:
   "4.8":
     name: 搜索防抖（自定义 Hook useDebounce 实战）
     module: 里程碑3 筛选与统计
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 1
+    last_tested: 2026-11-18
+    mastery_level: 1
+    failure_type: null
     core_question: 2.7 的 useDebounce 接入 Query 的 key
   "4.9":
     name: 统计页（派生计算 + 分类汇总）
     module: 里程碑3 筛选与统计
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 1
+    last_tested: 2026-11-18
+    mastery_level: 1
+    failure_type: null
     core_question: 派生不存储、useMemo 的正确时机
   "4.10":
     name: mock 登录（Context + localStorage）+ RequireAuth 守卫
     module: 里程碑4 登录与收尾
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 1
+    last_tested: 2026-11-19
+    mastery_level: 1
+    failure_type: null
     core_question: 登录态的 Context 化与路由保护
   "4.11":
     name: 性能收尾（路由 lazy + Suspense + Profiler 巡检）
     module: 里程碑4 登录与收尾
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 1
+    last_tested: 2026-11-19
+    mastery_level: 1
+    failure_type: null
     core_question: 3.4 优化清单落地
   "4.12":
     name: 项目收尾（README + 架构图 + 复盘）
     module: 里程碑4 登录与收尾
-    status: pending
-    attempts: 0
-    last_tested: null
-    mastery_level: 0
+    status: mastered
+    attempts: 1
+    last_tested: 2026-11-19
+    mastery_level: 1
+    failure_type: null
     core_question: 完整应用的技术串联与自我表达
   "5.1":
     name: 源码原理（deep-dive 模式，启动时再拆主题块）
@@ -328,6 +334,8 @@ nodes:
 - **s2 Hooks 深入：2026-09-01 完成**（7/7 节点 mastered，阶段总结见 summaries/react_hooks.md）
 - **s3 工程化：2026-09-03 完成**（4/4 节点 mastered，阶段总结见 summaries/react_engineering.md）
 - **s4 里程碑2 路由与详情：2026-09-21 完成**（4.4-4.6，项目模式无独立阶段总结，见 summaries/expense-tracker_m2-routing.md）
+- **s4 里程碑3 筛选与统计：2026-11-18 完成**（4.7-4.9，见 summaries/expense-tracker_m3-filter-stats.md）
+- **s4 实战项目（记账本）：2026-11-19 完成**（里程碑4 4.10-4.12，见 summaries/expense-tracker_m4-login-windup.md；全项目 12/12 节点 mastered）
 
 ## 实战项目进度（s4 记账本，node 4.x 见上方 frontmatter）
 
@@ -344,3 +352,10 @@ nodes:
 | 2026-09-21 | 4.6 | 通过 | 自主重构：抽共享组件 AddOrEditForm（record?: RecordItem|null + isEdit 分支 + recordToFormState 转换器 String(amount)/toDate()），Add/Edit 两页复用。课前答 Q3（编辑失效两棵树/删除不管详情树）Q4（replace 语义）全对。审查修 3 红：①invalidate({queryKey:['records','record']})想一次失效两棵树把 key 并成数组——**前缀语义没吃透（Q1 考过仍错）**，正解两句话各失效一棵；②删除的 invalidate(['records']) 被注释残留；③async initialValues 坑**被详情缓存意外掩护**（从详情进编辑 30s 缓存新鲜→data 首渲染同步可用→侥幸过），硬刷新即露馅——修法 `if(!data) return SpinLoading; return <AddOrEditForm/>`（顺带教学：return 后裸 {} 是对象字面量不是 JSX 占位，TS1005）。小项：Form.Header 动态文案/id 单点添加/as 断言消除/死 import。验收 7/7 过（含硬刷新编辑页补撞坑）。里程碑2 路由与详情完成，总结见 summaries/expense-tracker_m2-routing.md |
 | 2026-09-21 | 4.7 | 开始 | 里程碑3 第一节点：服务端筛选（已确认 json-server v1 beta.15 支持 ?type= 与 ?date_gte/_lte，日期字符串字典序可比）。新增概念：useSearchParams、queryKey 含筛选参数（衔接 3.3 userId 换 key）、空态 vs 错误态 |
 | 2026-09-22 | 4.7 | 通过 | 课前答 Q1（setSearchParams 整体替换→函数式展开 prev）Q2（invalidate(['records']) 前缀命中所有筛选组合）全对——4.6 前缀坑这次用对了。亮点：自创 date_contains=YYYY-MM 匹配整月（优于 gte/lte 区间方案）、方言转换留 api 层、isSuccess 区分空态/错误态。审查修 3 轮：🟠①selectDate useState 与 URL 双状态源（违反"URL 是唯一真相源"，硬刷新按钮文案与数据脱节）→删 state 从 URL 派生；🟠②resetDate 直接 searchParams.delete() 改在只读快照上不生效（读写分离：searchParams 只读，写必须走 setSearchParams）；🟡③FilterRender 组件定义在组件内部→每次渲染重挂子树→改 JSX 变量消除组件边界。Empty 提取/图标语义等杂项。验收 7/7 过（含刷新保筛选、✕ 清除月份）。遗留：行内注释 icons 块再留一轮（下轮必删）、FilterRender 命名建议 filterBar |
+| 2026-11-17 | 4.4/4.5 复习 | 通过 | 用户选测标记重点（非最早批 1.x，其余欠账继续顺延）。Q2 NavLink 段边界匹配 3/3 一次对（/records 高亮、/ 不高亮、end 后不高亮）；Q3 失效两棵树+前缀原理+staleTime/gcTime 一次对；Q1 布局复用首轮只答现象（"只加载对应组件"未触及机制），提示"Layout 还在吗？被换掉的是哪部分"后答出"Layout 保持挂载、Outlet 子组件替换"通过。4.4 逃生舱 3 问与 4.5 标记重点全部清账 |
+| 2026-11-17 | 4.8 | 开始 | 目标：useDebounce（2.7 重写）接入 Query key，RecordsPage 搜索框 + 防抖 300ms + ?q= 全文搜索 |
+| 2026-11-18 | 4.8 | 通过 | 讲解时间线机制后自写一次通过 useDebounce 核心（未踩"调用当传递"坑）；自发重构 queryKey 工厂（官方写法，加分）。审查修 3 轮：①useDebounce 写死 string→泛型 ②handleKeywordChange 死代码 ③invalidateRecordLists→useInvalidateRecordLists（Hook 命名约定）。实战 bug：搜索触发后 SearchBar 文字清空——根因 isLoading 早退卸载非受控 SearchBar（内部 state 随实例销毁，rawKeyword 未丢），用户自选受控化 value={rawKeyword} 修复（合法）+ 补 placeholderData 借旧数据防闪。🔴顺带纠正：onClick 里调 Hook（改名前就存在的违规）→hook 返回回调顶层调用。思考题（防抖值进 key 的原因）通过。验收 5/5 过。蒸馏见 distilled/topic32-react-search-debounce.md |
+| 2026-11-18 | 4.9 | 通过 | "派生不存储"一次写对（无第二份 state，useMemo 一次产出三数+分类汇总，deps=[records] 用对——2.6 误写 deps 未复发）。reduce 累收/Map 分组/降序全对。审查修 2 处：🟡key={index}（1.4 老坑回潮）→key={item.category}；🟡.map 做副作用→forEach（顺带：冗余类型注解）。口头答"为什么不用写失效"✅（同 lists() 前缀）；useMemo 必要性追问两轮：首轮只答成本角度，引导后补出"消费者不在乎引用→用途2不成立→可摘"。验收全过。里程碑3 筛选与统计完成，总结见 summaries/expense-tracker_m3-filter-stats.md，蒸馏见 distilled/topic33-react-stats-derived.md |
+| 2026-11-19 | 4.10 | 通过 | auth.tsx 按骨架一次写对（惰性初始化/双写/useAuth 判空 throw）；但首版绕过 Context 走纯 localStorage 路线（api/user.ts + 手动 setItem + RequireAuth 直读 localStorage）——auth.tsx 成死代码，主动提出"连接不上怎么使用"。教学两步接线法（main.tsx 包 Provider + useAuth 取电）后改回 Context 路线，接线全对。审查修：🔴FormState 字面量类型 'string'→string；🟡登录成功丢 state.from→location.state?.from ?? '/'；补 loading 态。用户自问 location.state 哪来的→顺势教学：state 是跳转方 Navigate 塞的随行包裹（RequireAuth 漏塞——3.2 考过仍漏，回炉），不进 URL、刷新即丢。验收 5/5 过。蒸馏见 distilled/topic34-react-auth-context.md |
+| 2026-11-19 | 4.11 | 通过 | 先测量后优化落地：术前 637.73kB 单包（gzip 208.68）+500kB 警告 → 术后 299.54kB（gzip 97.12）↓53%、~17 chunk、警告消失。6 页面 lazy + Suspense 包 Layout/Outlet 外（自选进阶方案，导航不闪），LoginPage 保持 static 与之自洽。build 输出教学：rolldown 自动共享提取（AddOrEditForm 4.62kB 公共 chunk、壳页面 0.14kB、date-picker 52kB 独立分片）。思考题（lazy 粒度）通过：用户答 UX 角度，补请求瀑布+缓存碎片化，判断法"只在用户自然等待的边界 lazy"。直访 /stats 拉多小文件判"正常"✅（按需集合 vs 全量单文件）。顺带收掉 m2 遗留 NotFoundPage（ErrorBlock+回首页）。验收过、tsc 0 错。蒸馏见 distilled/topic35-react-lazy-suspense.md |
+| 2026-11-19 | 4.12 | 通过 | 项目答辩模式（用户输出+LLM审查）。README：用户填写功能/选型/运行/结构职责（质量不错），LLM 修正 4 处（补 npm install、技术栈逐项给理由、补 pages/ 分层规则、功能介绍去围栏）+ 代写技术亮点三篇（逃生舱：用户"不会表述"）。变式验证：用户口头复述数据失效 story——结构完整术语全对 ✅，但坑被泛化成"写法不一致"（真实坑是 4.6 并数组失效），已教学"复盘讲事故，事故要真"。里程碑4 登录与收尾完成，s4 实战项目收官（12/12）。总结见 summaries/expense-tracker_m4-login-windup.md，蒸馏见 distilled/topic36-react-project-windup.md |
