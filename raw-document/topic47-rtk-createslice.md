@@ -268,4 +268,24 @@ export default TodoList
 
 ## 考核过程
 
+ 🎯 考核（编码 + 口头混合）
+
+  任务 1（编码）：用 createSlice 写一个 todosSlice：
+
+  - state：{ list: Todo[], lastId: number }（Todo = { id: string; text: string; done: boolean }）
+  - reducers：addTodo(text)（用 lastId 造 id + 追加 + lastId 自增）、toggleTodo(id)（深路径直改，不许逐层展开）、removeDone()（过滤掉所有 done）
+  - 导出 actions + reducer + RootState 类型声明
+
+  任务 2（口头两问）：
+
+  ① Immer 之后 reducer 还算纯吗？纯的三重回报（可测试/可重放/可追溯）保住了吗？逐条说。
+
+  ② 为什么“mutate 和 return 混写”会丢改动？用“草稿 Proxy”的机制讲。
+
+---------------------------
+
+  任务 1（编码，在 todosSlice 上补两个 reducer）：
+  - editTodo(id, text)：深路径直改某条的 text
+  - restoreSnapshot(snapshot: TodosState)：用 return 整体替换 state（练习“二选一”的 return 侧——注意这次不能有任何 mutate）
+
 （此段在考核通过后追加填充）
