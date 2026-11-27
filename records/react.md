@@ -28,7 +28,10 @@ submodules:
   s5:
     name: 源码原理（Fiber/Hooks 链表/调度）
     mode: deep-dive
-    status: pending
+    status: mastered
+    started_at: 2026-11-19
+    completed_at: 2026-11-24
+    note: 独立记录文件 records/react-source.md（target_depth: conceptual，面试高频导向）；A/B 两块含真实考核，C 块逃生舱参考通过
 nodes:
   "1.1":
     name: JSX 本质与 Vue 模板对照
